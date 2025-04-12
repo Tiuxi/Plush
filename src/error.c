@@ -6,11 +6,10 @@ Error rootshError_new_error() {
 }
 
 void rootshError_destroy_error(Error err) {
+    if (*err != NULL)
+        free(*err);
+    
     free(err);
-}
-
-void rootshError_destroy_error_message(Error err) {
-    free(*err);
 }
 
 void rootshError_set_error_message(Error err, const char *message) {
@@ -27,5 +26,12 @@ void rootshError_set_error_with_argument(Error err, const char* message, char* a
 
 void rootshError_print_error(Error err) {
     printf("%s", *err);
-    rootshError_destroy_error_message(err);
+}
+
+void rootshError_print_new_error(char *message) {
+    Error err = rootshError_new_error();
+    rootshError_set_error_message(err, message);
+    rootshError_print_error(err);
+    rootshError_destroy_error(err);
+    return;
 }

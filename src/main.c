@@ -20,7 +20,10 @@ int main (int argc, char** argv) {
         if (c==10) {
             
             buffer[index] = '\0';
-            rootshExec_execute_command(buffer);
+            if (strncmp(buffer, "exit", ROOTSH_MAX_COMMAND_LENGTH) == 0)
+                running = FALSE;
+            else
+                rootshExec_execute_command(buffer);
             index=0;
 
         }else {

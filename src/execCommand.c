@@ -34,16 +34,9 @@ List getEnvironementsDir()
     return paths;
 }
 
-char* get_single_command(List command, List paths) {
+char* get_single_command_from_paths(List command, List paths) {
     char* executablePath = (char*)malloc(sizeof(char) * PATH_MAX);
     int found = 0;
-
-    // Check redirection
-    Error errorRedirect = rootshError_new_error();
-    if (rootshInput_checkRedirect(command, errorRedirect) == -1) {
-        rootshError_print_error(errorRedirect);
-    }
-    rootshError_destroy_error(errorRedirect);
 
     // if is a file, go to that location
     if (ISFILE(command)) {
@@ -108,27 +101,75 @@ void rootshExec_execute_command(char* command) {
     List commands = rootshInput_splitInput(command);
 
     for (List command=commands; command!=NULL; command=command->next) {
-        List entry = command->v;
+        List currentCommand = command->v;
 
         // Check redirection
+        Error errorRedirect = rootshError_new_error();
+        if (rootshInput_checkRedirect(currentCommand, errorRedirect) == -1) {
+            rootshError_print_error(errorRedirect);
+            rootshError_destroy_error(errorRedirect);
+            return;
+        }
 
         // Check file
 
         // Check "PATH" executables
-        char* executable = get_single_command(entry, paths);
+        char *executable = get_single_command_from_paths(currentCommand, paths);
 
         if (executable==NULL) {
-            Error err = rootshError_new_error();
-            rootshError_set_error_message(err, "Command not found");
-            rootshError_print_error(err);
-            rootshError_destroy_error(err);
-        }else {
-            printf("%s\n", executable);
-            free(executable);
+            // set error & print it
+            rootshError_print_new_error("Command not found");
+
+            return;
         }
 
-        // execute command
+        // execute command in a child process
+        switch (fork()) {
+            // fork error
+            case -1:
+                rootshError_print_new_error("CRITICAL : fork error");
+                return;
+                break;
+            
+            // child process
+            case 0:
+                int nbArguments = rootshList_size(currentCommand);
+                char** arguments = (char**)malloc(sizeof(char*) * nbArguments+1);
 
+                // set argument list
+                List tmp = currentCommand;
+                for (int i=0; i<nbArguments; i++) {
+                    arguments[i] = tmp->v;
+                    tmp = tmp->next;
+                    printf("%s\n", arguments[i]);
+                }
+                arguments[nbArguments] = (char*)NULL; // required for execv
+
+                // execute command
+                int exitStatus = execv(executable, arguments);
+
+                // free values
+                rootshList_destroy2DListAll(command);
+
+                exit(exitStatus);
+                break;
+            
+            // main process
+            default:
+                break;
+        }
+
+        // wait for the child process to execute
+        int childStatus;
+        ASSERT(wait(&childStatus) != -1);
+        if (WIFEXITED(childStatus) && WEXITSTATUS(childStatus) == -1) {
+            rootshError_print_new_error("An unexpected error happened while executing the command");
+            return;
+        }
+        printf("%d\n", WEXITSTATUS(childStatus));
+
+        // free the path of the executable
+        free(executable);
     }
 
     // free everything

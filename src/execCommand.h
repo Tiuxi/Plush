@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "constants.h"
 #include "parseInput.h"
 #include "list.h"
