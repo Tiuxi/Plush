@@ -60,11 +60,13 @@ char* get_single_command_from_paths(List command, List paths) {
                 }
 
                 // uknown error, stop
-                else ASSERT(FALSE);
+                else {
+                    printf("Errno : %d\n", errno);
+                    ASSERT(FALSE);
+                }
             }
 
             struct dirent* file = readdir(dir);
-            //struct stat st;
 
             // check for every file in directory
             while (file != NULL && !found) {
@@ -108,18 +110,26 @@ void rootshExec_execute_command(char* command) {
         if (rootshInput_checkRedirect(currentCommand, errorRedirect) == -1) {
             rootshError_print_error(errorRedirect);
             rootshError_destroy_error(errorRedirect);
+
+            // free everything
+            rootshList_destroy2DListAll(commands);
+            rootshList_destroyAll(paths);
             return;
         }
+        rootshError_destroy_error(errorRedirect);
 
         // Check file
 
         // Check "PATH" executables
-        char *executable = get_single_command_from_paths(currentCommand, paths);
+        char* executable = get_single_command_from_paths(currentCommand, paths);
 
         if (executable==NULL) {
             // set error & print it
             rootshError_print_new_error("Command not found");
 
+            // free everything
+            rootshList_destroy2DListAll(commands);
+            rootshList_destroyAll(paths);
             return;
         }
 
@@ -134,7 +144,7 @@ void rootshExec_execute_command(char* command) {
             // child process
             case 0:
                 int nbArguments = rootshList_size(currentCommand);
-                char** arguments = (char**)malloc(sizeof(char*) * nbArguments+1);
+                char** arguments = (char**)malloc(sizeof(char*) * (nbArguments+1));
 
                 // set argument list
                 List tmp = currentCommand;
@@ -148,8 +158,10 @@ void rootshExec_execute_command(char* command) {
                 // execute command
                 int exitStatus = execv(executable, arguments);
 
-                // free values
-                rootshList_destroy2DListAll(command);
+                // free value
+                rootshList_destroy2DListAll(commands);
+                rootshList_destroyAll(paths);
+                free(executable);
 
                 exit(exitStatus);
                 break;
@@ -166,7 +178,6 @@ void rootshExec_execute_command(char* command) {
             rootshError_print_new_error("An unexpected error happened while executing the command");
             return;
         }
-        printf("%d\n", WEXITSTATUS(childStatus));
 
         // free the path of the executable
         free(executable);
@@ -174,6 +185,7 @@ void rootshExec_execute_command(char* command) {
 
     // free everything
     rootshList_destroy2DListAll(commands);
+    rootshList_destroyAll(paths);
 
     return;
 }

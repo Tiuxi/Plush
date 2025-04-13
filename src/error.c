@@ -2,6 +2,7 @@
 
 Error rootshError_new_error() {
     Error err = (Error)malloc(sizeof(char*));
+    *err = NULL;
     return err;
 }
 
