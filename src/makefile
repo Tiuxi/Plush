@@ -26,7 +26,7 @@ valgrind: compile
 	@valgrind ./$(EXEC)
 
 valgrind-full: compile
-	@valgrind --leak-check=full ./$(EXEC)
+	@valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes ./$(EXEC)
 
 #	 Get dependancies
 OBJECTS := $(patsubst %.c, %.o, $(wildcard *.c))

@@ -5,6 +5,7 @@
 #define ROOTSH_MAX_ARG_LENGTH 100
 #define ROOTSH_MAX_ERROR_LENGTH 256
 #define PATHVAR "PATH"
+#define WORKINGDIRVAR "PWD"
 
 #ifndef TRUE
 #define TRUE 1
