@@ -121,7 +121,8 @@ void rootshExec_execute_command(char* commandStr) {
 
         // Check file
         if (ISFILE(currentCommand)) {
-            executable = currentCommand->v;
+            executable = (char*)malloc(sizeof(char) * ROOTSH_MAX_ARG_LENGTH);
+            snprintf(executable, ROOTSH_MAX_ARG_LENGTH, "%s", (char*)currentCommand->v);
         }
 
         // Check "PATH" executables
@@ -172,7 +173,10 @@ void rootshExec_execute_command(char* commandStr) {
                 free(executable);
                 free(arguments);
 
-                exit(exitStatus);
+                if (exitStatus == -1)
+                    exit(errno);
+                else
+                    exit(0);
                 break;
             
             // main process
@@ -198,8 +202,9 @@ void rootshExec_execute_command(char* commandStr) {
                 snprintf(errnoNb, 5, "%d", WEXITSTATUS(childStatus));
 
                 Error err = rootshError_new_error();
-                rootshError_set_error_with_argument(err, "Unexcpected error. ERRNO", errnoNb);
-                rootshError_print_new_error("An unexpected error happened while executing the command");
+                rootshError_set_error_with_argument(err, "Unexcpected error", errnoNb);
+                rootshError_print_error(err);
+                rootshError_destroy_error(err);
                 break;
             }
         }

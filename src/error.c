@@ -26,7 +26,7 @@ void rootshError_set_error_with_argument(Error err, const char* message, char* a
 }
 
 void rootshError_print_error(Error err) {
-    printf("%s", *err);
+    fprintf(stderr, "%s", *err);
 }
 
 void rootshError_print_new_error(char *message) {
