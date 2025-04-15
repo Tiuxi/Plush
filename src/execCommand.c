@@ -191,10 +191,16 @@ void rootshExec_execute_command(char* commandStr) {
 
             // check child return code
             switch (WEXITSTATUS(childStatus)) {
-            case 0: // no error    
+            case 0: // no error
                 break;
             case EACCES: // permission denied
                 rootshError_print_new_error("Permission denied");
+                break;
+            case ENOENT: // File not found
+                rootshError_print_new_error("File not found");
+                break;
+            case EEXIST: // File exist
+                rootshError_print_new_error("File already exist");
                 break;
             
             default:
