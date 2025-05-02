@@ -82,3 +82,16 @@ void rootshList_printListString(List lst) {
     }
     printf("\"%s\"]\n", (char*)(tmp->v));
 }
+
+int rootshList_size(List lst) {
+    if (lst == NULL) return 0;
+
+    List tmp = lst;
+    int size = 1;
+    while (tmp->next != NULL) {
+        tmp = tmp->next;
+        size++;
+    }
+
+    return size;
+}

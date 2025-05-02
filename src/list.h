@@ -87,4 +87,11 @@ List rootshList_push(List lst, void *elem);
  */
 void rootshList_printListString(List lst);
 
+/**
+ * Get the size of a list
+ * 
+ * @param lst   The list to get the size of
+ */
+int rootshList_size(List lst);
+
 #endif

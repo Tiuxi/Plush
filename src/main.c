@@ -12,24 +12,33 @@ int main (int argc, char** argv) {
     int running = 1;
     char buffer[ROOTSH_MAX_COMMAND_LENGTH];
     int index = 0;
-    Error error = rootshError_new_error();
 
     while (running) {
         char c = getchar();
 
+        // user pressed enter
         if (c==10) {
             
             buffer[index] = '\0';
-            rootshExec_execute_command(buffer);
+            if (strncmp(buffer, "exit", ROOTSH_MAX_COMMAND_LENGTH) == 0)
+                running = FALSE;
+            else
+                rootshExec_execute_command(buffer);
             index=0;
 
-        }else {
+        }
+
+        // user pressed ctrl + d
+        else if (c == EOF) {
+            running = FALSE;
+        }
+
+        // anything else
+        else {
             buffer[index] = c;
             index++;
         }
     }
-
-    rootshError_destroy_error(error);
 
     return 0;
 }

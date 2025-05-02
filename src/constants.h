@@ -5,6 +5,7 @@
 #define ROOTSH_MAX_ARG_LENGTH 100
 #define ROOTSH_MAX_ERROR_LENGTH 256
 #define PATHVAR "PATH"
+#define WORKINGDIRVAR "PWD"
 
 #ifndef TRUE
 #define TRUE 1
@@ -18,7 +19,7 @@
 #include <stdio.h>
 
 #define ASSERT(op)           \
-    if((op) == 0) {          \
+    if((op) == FALSE) {          \
         fprintf(stderr, "Error: line %d, file \"%s\"\n", __LINE__, __FILE__);   \
         fflush(stderr);     \
         exit(EXIT_FAILURE); \
