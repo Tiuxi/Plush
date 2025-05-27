@@ -1,10 +1,10 @@
-#include "list.h"
+#include "utils/list.h"
 
-List rootshList_new(void* elem) {
-    return rootshList_push(NULL, elem);
+List plushList_new(void* elem) {
+    return plushList_push(NULL, elem);
 }
 
-void rootshList_destroyList(List lst) {
+void plushList_destroyList(List lst) {
     while (lst != NULL) {
         List tmp = lst;
         lst = lst->next;
@@ -13,27 +13,27 @@ void rootshList_destroyList(List lst) {
     return;
 }
 
-List rootshList_destroyElem(List lst) {
+List plushList_destroyElem(List lst) {
     List next = lst->next;
     free(lst);
     return next;
 }
 
-void rootshList_destroy2DList(List list2D) {
+void plushList_destroy2DList(List list2D) {
     while (list2D != NULL) {
-        rootshList_destroyList(list2D->v);
-        list2D = rootshList_destroyElem(list2D);
+        plushList_destroyList(list2D->v);
+        list2D = plushList_destroyElem(list2D);
     }
 }
 
-void rootshList_destroy2DListAll(List list2D) {
+void plushList_destroy2DListAll(List list2D) {
     while (list2D != NULL) {
-        rootshList_destroyAll(list2D->v);
-        list2D = rootshList_destroyElem(list2D);
+        plushList_destroyAll(list2D->v);
+        list2D = plushList_destroyElem(list2D);
     }
 }
 
-void rootshList_destroyAll(List lst) {
+void plushList_destroyAll(List lst) {
     while (lst != NULL) {
         free(lst->v);
         List tmp = lst;
@@ -43,7 +43,7 @@ void rootshList_destroyAll(List lst) {
     return;
 }
 
-List rootshList_push(List lst, void* elem) {
+List plushList_push(List lst, void* elem) {
     List add = (List)malloc(sizeof(struct s_list));
     add->next = NULL; add->v = elem;
 
@@ -55,26 +55,26 @@ List rootshList_push(List lst, void* elem) {
     return lst;
 }
 
-List rootshList_popDestroyValue(List lst, int destroy) {
+List plushList_popDestroyValue(List lst, int destroy) {
     List tmp = lst;
     
     if (tmp->next == NULL) {
-        return rootshList_destroyElem(tmp);
+        return plushList_destroyElem(tmp);
     }
 
     while (tmp->next->next != NULL) tmp = tmp->next;
 
     if (destroy == 1) {
         free(tmp->next->v);
-        tmp->next = rootshList_destroyElem(tmp->next);
+        tmp->next = plushList_destroyElem(tmp->next);
     }else {
-        tmp->next = rootshList_destroyElem(tmp->next);
+        tmp->next = plushList_destroyElem(tmp->next);
     }
     
     return lst;
 }
 
-void rootshList_printListString(List lst) {
+void plushList_printListString(List lst) {
     putchar('[');
     List tmp;
     for (tmp=lst; tmp->next != NULL; tmp=tmp->next) {
@@ -83,7 +83,7 @@ void rootshList_printListString(List lst) {
     printf("\"%s\"]\n", (char*)(tmp->v));
 }
 
-int rootshList_size(List lst) {
+int plushList_size(List lst) {
     if (lst == NULL) return 0;
 
     List tmp = lst;

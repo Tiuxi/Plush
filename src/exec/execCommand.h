@@ -1,5 +1,5 @@
-#ifndef ROOTSH_EXECCOMMAND
-#define ROOTSH_EXECCOMMAND
+#ifndef PLUSH_EXECCOMMAND
+#define PLUSH_EXECCOMMAND
 
 #include <stdio.h>
 #include <string.h>
@@ -10,18 +10,18 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include "constants.h"
-#include "parseInput.h"
-#include "list.h"
-#include "error.h"
+#include "utils/constants.h"
+#include "parse/parseInput.h"
+#include "utils/list.h"
+#include "utils/error.h"
 
 
 /**
- * Execute the command `command` with the rootsh shell, and print the result
+ * Execute the command `command` with the plush shell, and print the result
  * into the standar output
  * 
  * @param command       The command to execute (as a string)
  */
-void rootshExec_execute_command(char* command);
+void plushExec_execute_command(char* command);
 
 #endif

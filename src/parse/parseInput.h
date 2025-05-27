@@ -1,11 +1,11 @@
-#ifndef ROOTSH_PARSEINPUT
-#define ROOTSH_PARSEINPUT
+#ifndef PLUSH_PARSEINPUT
+#define PLUSH_PARSEINPUT
 
 #include <string.h>
 #include <stdlib.h>
-#include "list.h"
-#include "constants.h"
-#include "error.h"
+#include "utils/list.h"
+#include "utils/constants.h"
+#include "utils/error.h"
 
 
 
@@ -23,15 +23,15 @@
  */
 
 #define ISSTDIN(arg) \
-    (strncmp((char *)arg->v, "<", ROOTSH_MAX_ARG_LENGTH) == 0)
+    (strncmp((char *)arg->v, "<", PLUSH_MAX_ARG_LENGTH) == 0)
 
 #define ISSTDOUT(arg) \
-    (strncmp((char *)arg->v, ">", ROOTSH_MAX_ARG_LENGTH) == 0) || \
-    (strncmp((char *)arg->v, ">+", ROOTSH_MAX_ARG_LENGTH) == 0)
+    (strncmp((char *)arg->v, ">", PLUSH_MAX_ARG_LENGTH) == 0) || \
+    (strncmp((char *)arg->v, ">+", PLUSH_MAX_ARG_LENGTH) == 0)
 
 #define ISSTDERR(arg) \
-    (strncmp((char *)arg->v, ">>", ROOTSH_MAX_ARG_LENGTH) == 0) || \
-    (strncmp((char *)arg->v, ">>+", ROOTSH_MAX_ARG_LENGTH) == 0) \
+    (strncmp((char *)arg->v, ">>", PLUSH_MAX_ARG_LENGTH) == 0) || \
+    (strncmp((char *)arg->v, ">>+", PLUSH_MAX_ARG_LENGTH) == 0) \
 
 #define ISREDIRECT(arg) \
     ISSTDERR(arg) || ISSTDOUT(arg) || ISSTDIN(arg)
@@ -61,7 +61,7 @@
  * @param command       The string to split
  * @return The list of commands
  */
-List rootshInput_splitInput(char *command);
+List plushInput_splitInput(char *command);
 
 /**
  * Check in the List "command" if there are redirection and they are correctly made, if not return error message in argument `error`
@@ -70,6 +70,6 @@ List rootshInput_splitInput(char *command);
  * @param error         Error message if -1 is returned, `NULL` else
  * @return 0 if the command is correctly redirected, -1 else
  */
-int rootshInput_checkRedirect(List command, Error error);
+int plushInput_checkRedirect(List command, Error error);
 
 #endif
