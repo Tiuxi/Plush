@@ -5,7 +5,7 @@
  */
 List getEnvironementsDir()
 {
-    char *pathstr = getenv(PATHVAR);
+    char *pathstr = getenv(VAR_ENVPATH);
     if (pathstr == NULL)
         ASSERT(FALSE);
 
@@ -118,6 +118,14 @@ void plushExec_execute_command(char* commandStr) {
             return;
         }
         plushError_destroy_error(errorRedirect);
+
+        // Check built-in
+        if (plushBuiltin_check_builtin(currentCommand)) {
+            // free everything
+            plushList_destroy2DListAll(commands);
+            plushList_destroyAll(paths);
+            return;
+        }
 
         // Check file
         if (ISFILE(currentCommand)) {
