@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "constants.h"
+#include "utils/constants.h"
 
 typedef struct s_list {
     void* v;
@@ -16,7 +16,7 @@ typedef struct s_list {
  * @param elem The first element of the new list
  * @returns An new `List` object
  */
-List rootshList_new(void* elem);
+List plushList_new(void* elem);
 
 /**
  * Free the current element of the list `lst` and return the next one
@@ -24,7 +24,7 @@ List rootshList_new(void* elem);
  * @param lst   The element to free
  * @returns The next element
  */
-List rootshList_destroyElem(List lst);
+List plushList_destroyElem(List lst);
 
 /**
  * Free the whole list `lst`.
@@ -33,7 +33,7 @@ List rootshList_destroyElem(List lst);
  * @short Free the `lst` list
  * @param lst       The list to free
  */
-void rootshList_destroyList(List lst);
+void plushList_destroyList(List lst);
 
 /**
  * Free the whole list `lst` and the value inside every cell of the list
@@ -41,7 +41,7 @@ void rootshList_destroyList(List lst);
  * @short Free list cell and list values
  * @param lst       The list to free
  */
-void rootshList_destroyAll(List lst);
+void plushList_destroyAll(List lst);
 
 /**
  * Free the 2D list `list2D`.
@@ -50,14 +50,14 @@ void rootshList_destroyAll(List lst);
  * 
  * @param list2D    The 2D list to free
  */
-void rootshList_destroy2DList(List list2D);
+void plushList_destroy2DList(List list2D);
 
 /**
  * Free the 2D list `list2D` and the values inside.
  *
  * @param list2D    The 2D list to free
  */
-void rootshList_destroy2DListAll(List list2D);
+void plushList_destroy2DListAll(List list2D);
 
 /**
  * Free the last element of list `lst` and free the value if `destroy` is True (or 1)
@@ -65,10 +65,10 @@ void rootshList_destroy2DListAll(List list2D);
  * @param lst       The list to remove the element from
  * @param destroy   If the last element value should be free'd or not
  */
-List rootshList_popDestroyValue(List lst, int destroy);
+List plushList_popDestroyValue(List lst, int destroy);
 
-#define rootshList_pop(lst) rootshList_popDestroyValue(lst, 0)
-#define rootshList_popValue(lst) rootshList_popDestroyValue(lst, 1)
+#define plushList_pop(lst) plushList_popDestroyValue(lst, 0)
+#define plushList_popValue(lst) plushList_popDestroyValue(lst, 1)
 
 /**
  * Push the element `elem` at the end of the list `lst` by creating a new list cell
@@ -78,20 +78,20 @@ List rootshList_popDestroyValue(List lst, int destroy);
  * @param elem      The element to push in the list
  * @return A list with the new element in it
  */
-List rootshList_push(List lst, void *elem);
+List plushList_push(List lst, void *elem);
 
 /**
  * Print the list of char* `lst` 
  * 
  * @param lst   The list to print
  */
-void rootshList_printListString(List lst);
+void plushList_printListString(List lst);
 
 /**
  * Get the size of a list
  * 
  * @param lst   The list to get the size of
  */
-int rootshList_size(List lst);
+int plushList_size(List lst);
 
 #endif

@@ -1,4 +1,4 @@
-#include "execCommand.h"
+#include "exec/execCommand.h"
 
 /**
  * Get every executables directories from the environement variable "PATH"
@@ -12,7 +12,7 @@ List getEnvironementsDir()
     int lenPath = strlen(pathstr);
 
     char *currentDir = (char *)malloc(sizeof(char) * PATH_MAX);
-    List paths = rootshList_new(currentDir);
+    List paths = plushList_new(currentDir);
 
     int currentDirIndex = 0;
     for (int i = 0; i < lenPath; i++)
@@ -21,7 +21,7 @@ List getEnvironementsDir()
         {
             currentDir[currentDirIndex] = '\0';
             currentDir = (char *)malloc(sizeof(char) * PATH_MAX);
-            rootshList_push(paths, currentDir);
+            plushList_push(paths, currentDir);
             currentDirIndex = 0;
         }
         else
@@ -38,7 +38,7 @@ List getEnvironementsDir()
  * Check in every directory of environement variable "PATH" if the command "command" is in it
  * 
  * @param command The name of the command to search
- * @param paths The list of every paths from the "PATH" env var (in the form of a `rootshList`)
+ * @param paths The list of every paths from the "PATH" env var (in the form of a `plushList`)
  * @return The full path to the command
  */
 char* get_single_command_from_env_paths(char* command, List paths) {
@@ -96,33 +96,33 @@ char* get_single_command_from_env_paths(char* command, List paths) {
 }
 
 // main function
-void rootshExec_execute_command(char* commandStr) {
+void plushExec_execute_command(char* commandStr) {
     List paths = getEnvironementsDir();
 
     // parse the command
-    List commands = rootshInput_splitInput(commandStr);
+    List commands = plushInput_splitInput(commandStr);
 
     for (List command=commands; command!=NULL; command=command->next) {
         List currentCommand = command->v;
         char* executable = NULL;
 
         // Check redirection
-        Error errorRedirect = rootshError_new_error();
-        if (rootshInput_checkRedirect(currentCommand, errorRedirect) == -1) {
-            rootshError_print_error(errorRedirect);
-            rootshError_destroy_error(errorRedirect);
+        Error errorRedirect = plushError_new_error();
+        if (plushInput_checkRedirect(currentCommand, errorRedirect) == -1) {
+            plushError_print_error(errorRedirect);
+            plushError_destroy_error(errorRedirect);
 
             // free everything
-            rootshList_destroy2DListAll(commands);
-            rootshList_destroyAll(paths);
+            plushList_destroy2DListAll(commands);
+            plushList_destroyAll(paths);
             return;
         }
-        rootshError_destroy_error(errorRedirect);
+        plushError_destroy_error(errorRedirect);
 
         // Check file
         if (ISFILE(currentCommand)) {
-            executable = (char*)malloc(sizeof(char) * ROOTSH_MAX_ARG_LENGTH);
-            snprintf(executable, ROOTSH_MAX_ARG_LENGTH, "%s", (char*)currentCommand->v);
+            executable = (char*)malloc(sizeof(char) * PLUSH_MAX_ARG_LENGTH);
+            snprintf(executable, PLUSH_MAX_ARG_LENGTH, "%s", (char*)currentCommand->v);
         }
 
         // Check "PATH" executables
@@ -132,14 +132,14 @@ void rootshExec_execute_command(char* commandStr) {
 
         if (executable==NULL) {
             // set error & print it
-            Error err = rootshError_new_error();
-            rootshError_set_error_with_argument(err, "Command not found", currentCommand->v);
-            rootshError_print_error(err);
-            rootshError_destroy_error(err);
+            Error err = plushError_new_error();
+            plushError_set_error_with_argument(err, "Command not found", currentCommand->v);
+            plushError_print_error(err);
+            plushError_destroy_error(err);
 
             // free everything
-            rootshList_destroy2DListAll(commands);
-            rootshList_destroyAll(paths);
+            plushList_destroy2DListAll(commands);
+            plushList_destroyAll(paths);
             return;
         }
 
@@ -147,13 +147,13 @@ void rootshExec_execute_command(char* commandStr) {
         switch (fork()) {
             // fork error
             case -1:
-                rootshError_print_new_error("CRITICAL : fork error");
+                plushError_print_new_error("CRITICAL : fork error");
                 return;
                 break;
             
             // child process
             case 0:
-                int nbArguments = rootshList_size(currentCommand);
+                int nbArguments = plushList_size(currentCommand);
                 char** arguments = (char**)malloc(sizeof(char*) * (nbArguments+1));
 
                 // set argument list
@@ -168,8 +168,8 @@ void rootshExec_execute_command(char* commandStr) {
                 int exitStatus = execv(executable, arguments);
 
                 // free value
-                rootshList_destroy2DListAll(commands);
-                rootshList_destroyAll(paths);
+                plushList_destroy2DListAll(commands);
+                plushList_destroyAll(paths);
                 free(executable);
                 free(arguments);
 
@@ -194,23 +194,23 @@ void rootshExec_execute_command(char* commandStr) {
             case 0: // no error
                 break;
             case EACCES: // permission denied
-                rootshError_print_new_error("Permission denied");
+                plushError_print_new_error("Permission denied");
                 break;
             case ENOENT: // File not found
-                rootshError_print_new_error("File not found");
+                plushError_print_new_error("File not found");
                 break;
             case EEXIST: // File exist
-                rootshError_print_new_error("File already exist");
+                plushError_print_new_error("File already exist");
                 break;
             
             default:
                 char errnoNb[5];
                 snprintf(errnoNb, 5, "%d", WEXITSTATUS(childStatus));
 
-                Error err = rootshError_new_error();
-                rootshError_set_error_with_argument(err, "Unexcpected error", errnoNb);
-                rootshError_print_error(err);
-                rootshError_destroy_error(err);
+                Error err = plushError_new_error();
+                plushError_set_error_with_argument(err, "Unexcpected error", errnoNb);
+                plushError_print_error(err);
+                plushError_destroy_error(err);
                 break;
             }
         }
@@ -220,8 +220,8 @@ void rootshExec_execute_command(char* commandStr) {
     }
 
     // free everything
-    rootshList_destroy2DListAll(commands);
-    rootshList_destroyAll(paths);
+    plushList_destroy2DListAll(commands);
+    plushList_destroyAll(paths);
 
     return;
 }

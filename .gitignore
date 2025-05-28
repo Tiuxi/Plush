@@ -2,6 +2,7 @@
 *.o
 *[Mm]ain
 *.out
+*bin/
 
 # vscode
 .vscode/

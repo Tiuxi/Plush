@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include "constants.h"
-#include "parseInput.h"
-#include "error.h"
-#include "execCommand.h"
+#include "utils/constants.h"
+#include "parse/parseInput.h"
+#include "utils/error.h"
+#include "exec/execCommand.h"
 
 int main (int argc, char** argv) {
     // pass compilation
@@ -10,7 +10,7 @@ int main (int argc, char** argv) {
     (void) argv;
 
     int running = 1;
-    char buffer[ROOTSH_MAX_COMMAND_LENGTH];
+    char buffer[PLUSH_MAX_COMMAND_LENGTH];
     int index = 0;
 
     while (running) {
@@ -20,10 +20,10 @@ int main (int argc, char** argv) {
         if (c==10) {
             
             buffer[index] = '\0';
-            if (strncmp(buffer, "exit", ROOTSH_MAX_COMMAND_LENGTH) == 0)
+            if (strncmp(buffer, "exit", PLUSH_MAX_COMMAND_LENGTH) == 0)
                 running = FALSE;
             else
-                rootshExec_execute_command(buffer);
+                plushExec_execute_command(buffer);
             index=0;
 
         }
