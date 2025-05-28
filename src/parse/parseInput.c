@@ -31,12 +31,19 @@ List plushInput_splitInput(char* command) {
         }
         
         // slice by spaces
-        if (command[i] == ' ') {
+        else if (command[i] == ' ') {
             ((char*)(n->v))[currentIndex] = '\0';
             currentIndex = 0;
             s = (char*)malloc(sizeof(char) * PLUSH_MAX_ARG_LENGTH);
             argList = plushList_push(argList, s);
             n = n->next;
+        }
+
+        // if escape character, put next char in string
+        else if (command[i] == '\\') {
+            ((char *)(n->v))[currentIndex] = command[i+1];
+            currentIndex++;
+            i++;
         }
 
         // else put the char at the end of the string
