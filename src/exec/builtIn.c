@@ -7,16 +7,22 @@ int plushBuiltin_check_builtin(List cmd) {
 
         char* newPWD = NULL;
 
-        if (plushList_size(cmd) < 2) { // no argument, return to home folder
+        // 1 argument ("cd"), return to home folder
+        if (plushList_size(cmd) < 2) {
             newPWD = getenv(VAR_HOME);
-        } else if (plushList_size(cmd) == 2) {
+        }
+
+        // 2 arguments ("cd", "dir")
+        else if (plushList_size(cmd) == 2) {
             newPWD = (char*)cmd->next->v;
-        } else {
+        } 
+        
+        // 3+ arguments, throw error
+        else {
             plushError_print_new_error("cd : too many arguments");
         }
         
         if (newPWD != NULL) {
-            printf("%s\n", newPWD);
             chdir(newPWD);
         }
         return TRUE;
