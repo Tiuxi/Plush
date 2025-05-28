@@ -42,12 +42,8 @@ But Plush? Plush is yours.
 ## Download ?
 You can download the source code and play with it but there is no interface, or stable shell for now.
 
----
-
 ## Project status
 Alpha version. (working with lots of bugs and missing features)  
-
----
 
 ## Contributing
 All PRs are welcome !
@@ -55,8 +51,6 @@ All PRs are welcome !
 - Fix bug
 - Add theme
 - Improve doc
-
----
 
 ## License
 **[GPL-3.0](LICENSE)**
