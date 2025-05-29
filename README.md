@@ -12,7 +12,9 @@
          S H e l l
 ```
 
-**Plush** is a customizable, minimal, and cozy shell designed for users who love simplicity, retro vibes, and terminal elegance — without sacrificing power.
+**Plush** is a customizable, minimal, and cozy shell, designed for users who love simplicity, retro vibes, and terminal elegance.  
+  
+The whole shell is written in `c` from scratch, and some performance and memory comparison (with `bash` mainly) will be made soon.  
 
 ### Why Plush ?
 Because Bash was tough, Zsh was smart, Fish was friendly...  
@@ -34,7 +36,7 @@ But Plush? Plush is yours.
 
 **Minimal**
 ```bash
-[~/Projects/Plush] > echo "For thoses who prefer efficiency !"
+you:~/Projects/Plush $> echo "For thoses who prefer efficiency !"
 ```
 
 ---
