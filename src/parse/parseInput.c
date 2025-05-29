@@ -12,9 +12,9 @@ List plushInput_splitInput(char* command) {
     for (int i=0; i<commandLength; i++) {
 
         // if pipe, separate in a new command
-        if (currentIndex == 0 && command[i] == '|') {
-            if (currentIndex == 0) {
-                plushList_pop(argList);
+        if (command[i] == '|') {
+            if (currentIndex == 0 && plushList_size(argList) != 1) {
+                argList = plushList_pop(argList);
             }else {
                 ((char *)(n->v))[currentIndex] = '\0';
                 currentIndex = 0;
@@ -25,15 +25,22 @@ List plushInput_splitInput(char* command) {
             commandList = plushList_push(commandList, argList);
             n = argList;
 
-            while (i < commandLength && (command[i] == '|' || command[i] == ' ')){
+            i++;
+            while (i < commandLength && command[i] == ' '){
                 i++;
             }
+            i--;
         }
         
         // slice by spaces
         else if (command[i] == ' ') {
-            ((char*)(n->v))[currentIndex] = '\0';
-            currentIndex = 0;
+            if (currentIndex == 0) {
+                continue;
+            } else {
+                ((char*)(n->v))[currentIndex] = '\0';
+                currentIndex = 0;
+            }
+            
             s = (char*)malloc(sizeof(char) * PLUSH_MAX_ARG_LENGTH);
             argList = plushList_push(argList, s);
             n = n->next;
@@ -44,6 +51,21 @@ List plushInput_splitInput(char* command) {
             ((char *)(n->v))[currentIndex] = command[i+1];
             currentIndex++;
             i++;
+        }
+
+        // if double quotes, switch to input mode (no special character)
+        else if (command[i] == '\"') {
+            i++;
+            while (command[i] != '\"') {
+                if (command[i] == '\0') {
+                    plushError_print_new_error("\" not closed");
+                    plushList_destroy2DListAll(commandList);
+                    return NULL;
+                }
+                ((char *)(n->v))[currentIndex] = command[i]; 
+                currentIndex++;
+                i++;
+            }
         }
 
         // else put the char at the end of the string
