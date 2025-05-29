@@ -57,14 +57,35 @@ List plushInput_splitInput(char* command) {
         else if (command[i] == '\"') {
             i++;
             while (command[i] != '\"') {
+                // if end of string, throw error
                 if (command[i] == '\0') {
                     plushError_print_new_error("\" not closed");
                     plushList_destroy2DListAll(commandList);
                     return NULL;
+                } 
+                // if escape character
+                else if (command[i] == '\\') {
+                    // if special character, escape it, else add "\"
+                    switch (command[i+1]) {
+                        case '\\':
+                            ((char *)(n->v))[currentIndex] = '\\';
+                            break;
+                        case '\"':
+                            ((char *)(n->v))[currentIndex] = '\"';
+                            break;
+                        
+                        default:
+                            ((char *)(n->v))[currentIndex] = '\\';
+                            i--;
+                            break;
+                    }
+                    currentIndex++;
+                    i+=2;
+                } else {
+                    ((char *)(n->v))[currentIndex] = command[i]; 
+                    currentIndex++;
+                    i++;
                 }
-                ((char *)(n->v))[currentIndex] = command[i]; 
-                currentIndex++;
-                i++;
             }
         }
 
