@@ -5,7 +5,7 @@
  */
 List getEnvironementsDir()
 {
-    char *pathstr = getenv(PATHVAR);
+    char *pathstr = getenv(VAR_ENVPATH);
     if (pathstr == NULL)
         ASSERT(FALSE);
 
@@ -103,6 +103,17 @@ void plushExec_execute_command(char* commandStr) {
     List commands = plushInput_splitInput(commandStr);
 
     for (List command=commands; command!=NULL; command=command->next) {
+
+        // check if no command given in input
+        int size = plushList_size(command->v);
+        if (size == 0 || (size == 1 && ((char*)((List)command->v)->v)[0] == '\0')) {
+            plushError_print_new_error("No command given");
+
+            // free everything
+            plushList_destroy2DListAll(commands);
+            plushList_destroyAll(paths);
+            return;
+        }
         List currentCommand = command->v;
         char* executable = NULL;
 
@@ -118,6 +129,12 @@ void plushExec_execute_command(char* commandStr) {
             return;
         }
         plushError_destroy_error(errorRedirect);
+
+        // Check built-in
+        if (plushBuiltin_check_builtin(currentCommand)) {
+            // free everything
+            continue;
+        }
 
         // Check file
         if (ISFILE(currentCommand)) {

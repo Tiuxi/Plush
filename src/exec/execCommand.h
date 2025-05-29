@@ -14,6 +14,7 @@
 #include "parse/parseInput.h"
 #include "utils/list.h"
 #include "utils/error.h"
+#include "exec/builtIn.h"
 
 
 /**
