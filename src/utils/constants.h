@@ -8,6 +8,10 @@
 #define VAR_WORKINGDIR "PWD"
 #define VAR_HOME "HOME"
 
+#ifndef KEY_RETURN
+#define KEY_RETURN 10
+#endif
+
 #ifndef TRUE
 #define TRUE 1
 #endif

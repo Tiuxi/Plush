@@ -13,30 +13,40 @@ int main (int argc, char** argv) {
     char buffer[PLUSH_MAX_COMMAND_LENGTH];
     int index = 0;
 
+    putchar('$'); putchar(' ');
+
     while (running) {
         char c = getchar();
 
-        // user pressed enter
-        if (c==10) {
-            
-            buffer[index] = '\0';
-            if (strncmp(buffer, "exit", PLUSH_MAX_COMMAND_LENGTH) == 0)
-                running = FALSE;
-            else
-                plushExec_execute_command(buffer);
-            index=0;
+        switch (c) {
 
-        }
+        // "RETURN"
+        case KEY_RETURN:
 
-        // user pressed ctrl + d
-        else if (c == EOF) {
+            // if command is empty, skip
+            if (index!=0) {
+                buffer[index] = '\0';
+                if (strncmp(buffer, "exit", PLUSH_MAX_COMMAND_LENGTH) == 0)
+                    running = FALSE;
+                else
+                    plushExec_execute_command(buffer);
+                index = 0;
+            }
+            putchar('$'); putchar(' ');
+
+            break;
+        
+        // ctrl + d
+        case EOF:
             running = FALSE;
-        }
+            write(STDOUT_FILENO, "\nexiting\n", 10);
+            break;
+        
 
-        // anything else
-        else {
+        default:
             buffer[index] = c;
             index++;
+            break;
         }
     }
 
