@@ -3,6 +3,7 @@
 #include "parse/parseInput.h"
 #include "utils/error.h"
 #include "exec/execCommand.h"
+#include "hist/history.h"
 
 int main (int argc, char** argv) {
     // pass compilation
@@ -13,8 +14,10 @@ int main (int argc, char** argv) {
     char buffer[PLUSH_MAX_COMMAND_LENGTH];
     int index = 0;
 
+    plushHistory_check_dir();
+    
     putchar('$'); putchar(' ');
-
+    
     while (running) {
         char c = getchar();
 
