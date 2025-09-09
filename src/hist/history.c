@@ -31,7 +31,7 @@ void plushHistory_load_file() {
     char* histFilePath = (char*)malloc(sizeof(char)*FILENAME_MAX);
     snprintf(histFilePath, FILENAME_MAX, "%s/%s/%s", getenv(VAR_HOME), PATH_HISTDIR, PATH_HISTFILE);
 
-    history.fd = open(histFilePath, O_CREAT | O_RDWR, 0664);
+    history.fd = open(histFilePath, O_CREAT | O_RDONLY, 0664);
     history.index = 0;
     history.hist = (char**)malloc(sizeof(char*) * HISTORY_SIZE);
     for (unsigned int i=0; i<HISTORY_SIZE; i++) history.hist[i] = NULL;
@@ -49,7 +49,12 @@ void plushHistory_load_file() {
             // new command
             if (buffer[i] == '\n') {
                 history.index = (history.index+1) % HISTORY_SIZE;
-                history.hist[history.index] = (char*)calloc(PLUSH_MAX_COMMAND_LENGTH, sizeof(char));
+
+                if (history.hist[history.index] == NULL)
+                    history.hist[history.index] = (char*)calloc(PLUSH_MAX_COMMAND_LENGTH, sizeof(char));
+                else
+                    for (int i=0; i<PLUSH_MAX_COMMAND_LENGTH; i++) 
+                        history.hist[history.index][i] = 0;
                 currentIndex = 0;
             } else {
                 history.hist[history.index][currentIndex] = buffer[i];
@@ -60,6 +65,7 @@ void plushHistory_load_file() {
 
     free(buffer);
     free(histFilePath);
+    close(history.fd);
 
     return;
 }
@@ -79,7 +85,8 @@ void plushHistory_destroy_history() {
 void plushHistory_add_command(const char* command) {
     // check if same command than before
     char* previousCommand = history.hist[(history.index - 1 + HISTORY_SIZE) % HISTORY_SIZE];
-    if (previousCommand != NULL && strncmp(previousCommand, command, max(strlen(previousCommand), strlen(command))) == 0) {
+    if (previousCommand != NULL && 
+        !strncmp(previousCommand, command, max(strlen(previousCommand), strlen(command)))) {
 
         return;
     }
@@ -92,7 +99,35 @@ void plushHistory_add_command(const char* command) {
     }
 
     history.index = (history.index+1) % HISTORY_SIZE;
-    history.hist[history.index] = (char*) calloc(PLUSH_MAX_COMMAND_LENGTH, sizeof(char));
+    if (history.hist[history.index] == NULL)
+        history.hist[history.index] = (char*)calloc(PLUSH_MAX_COMMAND_LENGTH, sizeof(char));
+    else
+        for (int i = 0; i < PLUSH_MAX_COMMAND_LENGTH; i++)
+            history.hist[history.index][i] = 0;
+
+    return;
+}
+
+void plushHistory_save_to_file() {
+
+    char* histFilePath = (char*)malloc(sizeof(char) * FILENAME_MAX);
+    snprintf(histFilePath, FILENAME_MAX, "%s/%s/%s", getenv(VAR_HOME), PATH_HISTDIR, PATH_HISTFILE);
+    
+    history.fd = open(histFilePath, O_TRUNC | O_WRONLY);
+
+    int index = (history.index + 1) % HISTORY_SIZE;
+
+    while (index != history.index) {
+        if (history.hist[index] != NULL) {
+            write(history.fd, history.hist[index], PLUSH_MAX_COMMAND_LENGTH);
+            write(history.fd, "\n", 2);
+        }
+
+        index = (index + 1) % HISTORY_SIZE;
+    }
+
+    close(history.fd);
+    free(histFilePath);
 
     return;
 }

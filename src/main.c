@@ -56,6 +56,7 @@ int main (int argc, char** argv) {
         }
     }
 
+    plushHistory_save_to_file();
     plushHistory_destroy_history();
 
     return 0;

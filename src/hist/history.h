@@ -41,12 +41,17 @@ void plushHistory_destroy_history();
  */
 void plushHistory_add_command(const char* command);
 
+/**
+ * Save current history to the history file in the .config folder
+ */
+void plushHistory_save_to_file();
+
 // history global variables
-typedef struct s_hist{
+typedef struct s_hist {
     int fd;
     char** hist;
     int index;
-}History;
+} History;
 
 extern History history; /* history global variable */
 extern unsigned int HISTORY_SIZE; /* definition in history.c */
