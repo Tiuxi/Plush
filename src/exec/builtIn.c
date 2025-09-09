@@ -29,7 +29,16 @@ int plushBuiltin_check_builtin(List cmd) {
     }
 
     if (!strncmp(command, "history", PLUSH_MAX_COMMAND_LENGTH)) {
-        printf("Not implemented yet");
+        int index = (history.index+1) % HISTORY_SIZE;
+
+        while (index != history.index) {
+            if (history.hist[index] != NULL) {
+                write(STDOUT_FILENO, history.hist[index], PLUSH_MAX_COMMAND_LENGTH);
+            }
+
+            index = (index+1) % HISTORY_SIZE;
+        }
+
         return TRUE;
     }
 

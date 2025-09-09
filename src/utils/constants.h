@@ -1,7 +1,7 @@
 #ifndef PLUSH_CONSTANTS
 #define PLUSH_CONSTANTS
 
-#define PLUSH_MAX_COMMAND_LENGTH 2048
+#define PLUSH_MAX_COMMAND_LENGTH 512
 #define PLUSH_MAX_ARG_LENGTH 100
 #define PLUSH_MAX_ERROR_LENGTH 256
 #define VAR_ENVPATH "PATH"
@@ -19,6 +19,8 @@
 #ifndef FALSE
 #define FALSE 0
 #endif
+
+unsigned int HISTORY_SIZE = 2000;
 
 // Syscall checks
 #include <stdio.h>
