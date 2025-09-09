@@ -37,7 +37,7 @@ void plushHistory_load_file() {
     for (unsigned int i=0; i<HISTORY_SIZE; i++) history.hist[i] = NULL;
     history.hist[history.index] = (char*)calloc(PLUSH_MAX_COMMAND_LENGTH, sizeof(char));
 
-    ssize_t bytes_reads, buff_size=16;
+    ssize_t bytes_reads, buff_size=64;
     char* buffer = (char*)malloc(sizeof(char) * buff_size);
 
     // read all file content
@@ -76,7 +76,13 @@ void plushHistory_destroy_history() {
     return;
 }
 
-void plushHistory_add_command(char* command) {
+void plushHistory_add_command(const char* command) {
+    // check if same command than before
+    char* previousCommand = history.hist[(history.index - 1 + HISTORY_SIZE) % HISTORY_SIZE];
+    if (previousCommand != NULL && strncmp(previousCommand, command, max(strlen(previousCommand), strlen(command))) == 0) {
+
+        return;
+    }
 
     int index=0;
 

@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 #define PATH_HISTDIR ".config/plush"
 #define PATH_HISTFILE "plush_history"
@@ -38,7 +39,7 @@ void plushHistory_destroy_history();
  * 
  * @param command   The command to add to the history
  */
-void plushHistory_add_command(char* command);
+void plushHistory_add_command(const char* command);
 
 // history global variables
 typedef struct s_hist{
