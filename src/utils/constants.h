@@ -20,8 +20,6 @@
 #define FALSE 0
 #endif
 
-unsigned int HISTORY_SIZE = 2000;
-
 // Syscall checks
 #include <stdio.h>
 

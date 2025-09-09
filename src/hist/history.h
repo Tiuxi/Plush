@@ -23,9 +23,22 @@ void plushHistory_check_dir();
 
 /**
  * Load the history file, or create it if doesn't exist.  
- * Also allocate and create the history var.
+ * Also allocate and create the history variable
  */
 void plushHistory_load_file();
+
+/**
+ * Free the history variable
+ */
+void plushHistory_destroy_history();
+
+/**
+ * Add a command to the history.
+ * If the previous command is the same, it doesn't add it
+ * 
+ * @param command   The command to add to the history
+ */
+void plushHistory_add_command(char* command);
 
 // history global variables
 typedef struct s_hist{
@@ -33,6 +46,8 @@ typedef struct s_hist{
     char** hist;
     int index;
 }History;
-History history;
 
-#endif
+extern History history; /* history global variable */
+extern unsigned int HISTORY_SIZE; /* definition in history.c */
+
+#endif /* PLUSH_HISTORY */

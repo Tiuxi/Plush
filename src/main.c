@@ -14,10 +14,11 @@ int main (int argc, char** argv) {
     char buffer[PLUSH_MAX_COMMAND_LENGTH];
     int index = 0;
 
+    // history
     plushHistory_check_dir();
+    plushHistory_load_file();
     
     putchar('$'); putchar(' ');
-    
     while (running) {
         char c = getchar();
 
@@ -31,8 +32,10 @@ int main (int argc, char** argv) {
                 buffer[index] = '\0';
                 if (strncmp(buffer, "exit", PLUSH_MAX_COMMAND_LENGTH) == 0)
                     running = FALSE;
-                else
+                else {
+                    plushHistory_add_command(buffer);
                     plushExec_execute_command(buffer);
+                }
                 index = 0;
             }
             putchar('$'); putchar(' ');
@@ -52,6 +55,8 @@ int main (int argc, char** argv) {
             break;
         }
     }
+
+    plushHistory_destroy_history();
 
     return 0;
 }

@@ -52,7 +52,7 @@ $(EXEC): $(OBJS)
 # Clean targets
 .PHONY: clean
 clean:
-	rm -rf $(BIN_DIR)/*.o $(EXEC) build/
+	rm -rf $(BIN_DIR) $(EXEC) build/
 
 .PHONY: clean-keep-build
 clean-keep-build:
