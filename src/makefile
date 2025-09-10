@@ -1,7 +1,7 @@
 # Compiler and flags
 CC ?= gcc
 CFLAGS ?= -g -Wall -Werror -Wextra
-LIBS ?= -lncursesw
+LIBS ?= 
 
 # Directories
 SRC_DIR := .
