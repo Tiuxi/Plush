@@ -45,7 +45,7 @@ int main (int argc, char** argv) {
         // ctrl + d
         case EOF:
             running = FALSE;
-            write(STDOUT_FILENO, "\nexiting\n", 10);
+            if(write(STDOUT_FILENO, "\nexiting\n", 10)){;}
             break;
         
 

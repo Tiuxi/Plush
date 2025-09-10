@@ -113,14 +113,17 @@ void plushHistory_save_to_file() {
     char* histFilePath = (char*)malloc(sizeof(char) * FILENAME_MAX);
     snprintf(histFilePath, FILENAME_MAX, "%s/%s/%s", getenv(VAR_HOME), PATH_HISTDIR, PATH_HISTFILE);
     
-    history.fd = open(histFilePath, O_TRUNC | O_WRONLY);
+    history.fd = open(histFilePath, O_TRUNC | O_WRONLY | O_CREAT, 0664);
 
     int index = (history.index + 1) % HISTORY_SIZE;
 
     while (index != history.index) {
         if (history.hist[index] != NULL) {
-            write(history.fd, history.hist[index], PLUSH_MAX_COMMAND_LENGTH);
-            write(history.fd, "\n", 2);
+            if (write(history.fd, history.hist[index], PLUSH_MAX_COMMAND_LENGTH) < 0
+            || write(history.fd, "\n", 2) < 0) {
+                plushError_print_new_warn("Cannot write to history file");
+                break;
+            }
         }
 
         index = (index + 1) % HISTORY_SIZE;
