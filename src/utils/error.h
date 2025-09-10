@@ -52,8 +52,15 @@ void plushError_print_error(Error err);
 /**
  * Print an error message directly from a string
  * 
- * @param message The message to put on the error
+ * @param message The message to put in the error
  */
 void plushError_print_new_error(char* message);
+
+/**
+ * Print a warn message directly from a string
+ * 
+ * @param message The message to put in the warn
+ */
+void plushError_print_new_warn(char* message);
 
 #endif
