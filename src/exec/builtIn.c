@@ -23,7 +23,28 @@ int plushBuiltin_check_builtin(List cmd) {
         }
         
         if (newPWD != NULL) {
-            chdir(newPWD);
+            if (chdir(newPWD)==-1) {
+                switch (errno) {
+                case ENOENT:
+                    {
+                        Error err = plushError_new_error();
+                        
+                        plushError_set_error_with_argument(err, "No directory named", newPWD);
+                        plushError_print_error(err);
+                        plushError_destroy_error(err);
+                    }
+
+                    break;
+                
+                default:
+                    {
+                        char err[26];
+                        snprintf(err, 26, "Unkown error. errno : %d", errno);
+                        plushError_print_new_error(err);
+                    }
+                    break;
+                }
+            };
         }
         return TRUE;
     }
@@ -33,8 +54,12 @@ int plushBuiltin_check_builtin(List cmd) {
 
         while (index != history.index) {
             if (history.hist[index] != NULL) {
-                write(STDOUT_FILENO, history.hist[index], PLUSH_MAX_COMMAND_LENGTH);
-                write(STDOUT_FILENO, "\n", 2);
+                ssize_t bytes_written;
+
+                bytes_written = write(STDOUT_FILENO, history.hist[index], PLUSH_MAX_COMMAND_LENGTH);
+                bytes_written = write(STDOUT_FILENO, "\n", 2);
+
+                (void)bytes_written; // for compiler -Wextra
             }
 
             index = (index+1) % HISTORY_SIZE;

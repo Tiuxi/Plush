@@ -204,33 +204,6 @@ void plushExec_execute_command(char* commandStr) {
         // wait for the child process to execute
         int childStatus;
         ASSERT(wait(&childStatus) != -1);
-        if (WIFEXITED(childStatus)) {
-
-            // check child return code
-            switch (WEXITSTATUS(childStatus)) {
-            case 0: // no error
-                break;
-            case EACCES: // permission denied
-                plushError_print_new_error("Permission denied");
-                break;
-            case ENOENT: // File not found
-                plushError_print_new_error("File not found");
-                break;
-            case EEXIST: // File exist
-                plushError_print_new_error("File already exist");
-                break;
-            
-            default:
-                char errnoNb[5];
-                snprintf(errnoNb, 5, "%d", WEXITSTATUS(childStatus));
-
-                Error err = plushError_new_error();
-                plushError_set_error_with_argument(err, "Unexcpected error", errnoNb);
-                plushError_print_error(err);
-                plushError_destroy_error(err);
-                break;
-            }
-        }
 
         // free the path of the executable
         free(executable);
