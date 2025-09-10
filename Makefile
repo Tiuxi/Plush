@@ -2,7 +2,7 @@
 CC := gcc
 
 # compiler flags
-CFLAGS := -g -Wall -Werror -Wextra
+CFLAGS := -Wall -Werror -Wextra
 
 # executable name
 EXEC := main

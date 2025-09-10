@@ -4,6 +4,7 @@
 #include "utils/list.h"
 #include "utils/constants.h"
 #include "utils/error.h"
+#include "hist/history.h"
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
