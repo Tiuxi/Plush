@@ -12,7 +12,7 @@
          S H e l l
 ```
 
-**Plush** is a customizable, minimal, and cozy shell, designed for users who love simplicity, retro vibes, and terminal elegance.  
+**Plush** is a customizable, minimal, and cozy unix shell, designed for users who love simplicity, retro vibes, and terminal elegance.  
   
 The whole shell is written in `c` from scratch, and some performance and memory comparison (with `bash` mainly) will be made soon.  
 
@@ -41,8 +41,18 @@ you:~/Projects/Plush $> echo "For thoses who prefer efficiency !"
 
 ---
 
-## Download ?
-You can download the source code and play with it but there is no interface, or stable shell for now.
+## Building
+You can build the shell from the source code with `make`. 
+You will need a C compiler (like `clang` or `gcc`).
+
+The `make` command should return an executable named `plush`.
+
+For developpement purpose, a makefile is in the `src/` directory with more targets.
+If run from this directory, the executable will stay in the `src/` directory and will be named `main`.
+
+More targets are availables in this makefile (like `make valgrind` or `make valgrind-full` which will check the memory allocations with the [valgrind](https://valgrind.org/) tool).  
+In this makefile, the debug flag (`-g`) is also enabled by default. 
+
 
 ## Project status
 Alpha version. (working with lots of bugs and missing features)  
