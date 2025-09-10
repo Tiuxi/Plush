@@ -3,6 +3,7 @@
 *[Mm]ain
 *.out
 *bin/
+[Pp]lush
 
 # vscode
 .vscode/
