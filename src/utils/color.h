@@ -38,5 +38,6 @@ Base color:
 #define COLOR_BASE "\033[0;38m"
 
 #define COLOR_REDBOLD "\033[1;31m"
+#define COLOR_YELLOWBOLD "\033[1;33m"
 
 #endif
