@@ -2,10 +2,10 @@
 CC := gcc
 
 # compiler flags
-CFLAGS := -Wall -Werror -Wextra
+CFLAGS := -Wall -Werror -Wextra -O3
 
 # executable name
-EXEC := main
+EXEC := plush
 
 export CC CFLAGS LIBS EXEC
 
