@@ -1,4 +1,4 @@
-#include "parse/parseInput.h"
+#include "input/parseInput.h"
 
 List plushInput_splitInput(char* command) {
     int commandLength = strlen(command);

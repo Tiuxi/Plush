@@ -12,7 +12,7 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include "utils/constants.h"
-#include "parse/parseInput.h"
+#include "input/parseInput.h"
 #include "utils/list.h"
 #include "utils/error.h"
 #include "exec/builtIn.h"

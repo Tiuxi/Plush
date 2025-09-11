@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "utils/constants.h"
-#include "parse/parseInput.h"
+#include "input/parseInput.h"
 #include "utils/error.h"
 #include "exec/execCommand.h"
 #include "hist/history.h"
