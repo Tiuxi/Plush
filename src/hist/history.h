@@ -15,7 +15,8 @@
 
 #define PATH_HISTDIR ".config/plush"
 #define PATH_HISTFILE "plush_history"
-#define MOD_HISTDIR S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH
+#define MOD_HISTDIR 0700
+#define MOD_HISTFILE 0664
 
 /**
  * Check if the directory for the history exist

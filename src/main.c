@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "utils/constants.h"
 #include "parse/parseInput.h"
 #include "utils/error.h"
@@ -11,13 +12,18 @@ int main (int argc, char** argv) {
     (void) argv;
 
     int running = 1;
-    char buffer[PLUSH_MAX_COMMAND_LENGTH];
+    char buffer[PLUSH_BASE_COMMAND_LENGTH];
     int index = 0;
 
     // history
     plushHistory_check_dir();
     plushHistory_load_file();
-    
+
+    // save & free on exit
+    // function are put in stack, so put destroy first and save after
+    atexit(plushHistory_destroy_history);
+    atexit(plushHistory_save_to_file);
+
     putchar('$'); putchar(' ');
     while (running) {
         char c = getchar();
@@ -30,7 +36,7 @@ int main (int argc, char** argv) {
             // if command is empty, skip
             if (index!=0) {
                 buffer[index] = '\0';
-                if (strncmp(buffer, "exit", PLUSH_MAX_COMMAND_LENGTH) == 0)
+                if (strncmp(buffer, "exit", PLUSH_BASE_COMMAND_LENGTH) == 0)
                     running = FALSE;
                 else {
                     plushHistory_add_command(buffer);
@@ -55,9 +61,6 @@ int main (int argc, char** argv) {
             break;
         }
     }
-
-    plushHistory_save_to_file();
-    plushHistory_destroy_history();
 
     return 0;
 }

@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 #include "utils/constants.h"
 #include "parse/parseInput.h"
 #include "utils/list.h"
