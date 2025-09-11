@@ -6,9 +6,9 @@
 List getEnvironementsDir()
 {
     char *pathstr = getenv(VAR_ENVPATH);
-    if (pathstr == NULL) {
+    if (pathstr == NULL || pathstr[0] == '\0') {
         plushError_print_new_warn("$PATH not initialized. Initializing to \"/bin:/usr/bin\"");
-        if (setenv(VAR_ENVPATH, DEFAULT_PATH, 0) == -1) {
+        if (setenv(VAR_ENVPATH, DEFAULT_PATH, 1) == -1) {
             plushError_print_new_error("Critical : could not set $PATH");
             ASSERT(FALSE);
         }

@@ -1,6 +1,6 @@
 #ifndef PLUSH_KEYBOARDHANDLER
 #define PLUSH_KEYBOARDHANDLER
 
-
+#include <termio.h>
 
 #endif /* PLUSH_KEYBOARDHANDLER */

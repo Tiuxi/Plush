@@ -10,7 +10,7 @@ int plushBuiltin_check_builtin(List cmd) {
         // 1 argument ("cd"), return to home folder
         if (plushList_size(cmd) < 2) {
             newPWD = getenv(VAR_HOME);
-            if (newPWD == NULL)
+            if (newPWD == NULL || newPWD[0] == '\0')
                 plushError_print_new_warn("$HOME not initialized");
         }
 
@@ -24,7 +24,7 @@ int plushBuiltin_check_builtin(List cmd) {
             plushError_print_new_error("cd : too many arguments");
         }
         
-        if (newPWD != NULL) {
+        if (newPWD != NULL && newPWD[0] != '\0') {
             if (chdir(newPWD)==-1) {
                 switch (errno) {
                 case ENOENT:
@@ -52,6 +52,7 @@ int plushBuiltin_check_builtin(List cmd) {
     }
 
     if (!strncmp(command, "history", PLUSH_BASE_COMMAND_LENGTH)) {
+        if (!isHistoryActivated) return TRUE;
         int index = (history.index+1) % HISTORY_SIZE;
 
         while (index != history.index) {

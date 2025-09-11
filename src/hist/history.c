@@ -2,13 +2,15 @@
 
 History history;
 unsigned int HISTORY_SIZE = 2000;
+char isHistoryActivated=TRUE;
 
 void plushHistory_check_dir() {
 
     char* histPath = (char*)malloc(sizeof(char)*FILENAME_MAX);
     const char* home = getenv(VAR_HOME);
-    if (home == NULL) {
+    if (home == NULL || home[0] == '\0') {
         plushError_print_new_warn("$HOME not initialized. History will not be activated");
+        isHistoryActivated=FALSE;
         return;
     }
 
@@ -33,12 +35,10 @@ void plushHistory_check_dir() {
 }
 
 void plushHistory_load_file() {
+    if (!isHistoryActivated) return;
 
     char* histFilePath = (char*)malloc(sizeof(char)*FILENAME_MAX);
-    const char* home = getenv(VAR_HOME);
-    if (home == NULL) return;
-
-    snprintf(histFilePath, FILENAME_MAX, "%s/%s/%s", home, PATH_HISTDIR, PATH_HISTFILE);
+    snprintf(histFilePath, FILENAME_MAX, "%s/%s/%s", getenv(VAR_HOME), PATH_HISTDIR, PATH_HISTFILE);
 
     history.fd = open(histFilePath, O_CREAT | O_RDWR, MOD_HISTFILE);
     history.index = 0;
@@ -78,6 +78,7 @@ void plushHistory_load_file() {
 }
 
 void plushHistory_destroy_history() {
+    if (!isHistoryActivated) return;
     
     for (unsigned int i=0; i<HISTORY_SIZE; i++) {
         if (history.hist[i] != NULL)
@@ -90,6 +91,8 @@ void plushHistory_destroy_history() {
 }
 
 void plushHistory_add_command(const char* command) {
+    if (!isHistoryActivated) return;
+
     // check if same command than before
     char* previousCommand = history.hist[(history.index - 1 + HISTORY_SIZE) % HISTORY_SIZE];
     if (previousCommand != NULL && 
@@ -114,10 +117,11 @@ void plushHistory_add_command(const char* command) {
 }
 
 void plushHistory_save_to_file() {
+    if (!isHistoryActivated) return;
 
     char* histFilePath = (char*)malloc(sizeof(char) * FILENAME_MAX);
     const char* home = getenv(VAR_HOME);
-    if (home == NULL) return;
+    if (home == NULL || home[0] == '\0') return;
 
     snprintf(histFilePath, FILENAME_MAX, "%s/%s/%s", home, PATH_HISTDIR, PATH_HISTFILE);
 
