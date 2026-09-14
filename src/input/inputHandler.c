@@ -3,6 +3,8 @@
 bool PlushInput_MainLoopRunning = FALSE;
 
 void load_hist_to_linenoise() {
+    if (!isHistoryActivated) return;
+    
     int index = (history.index + 1) % HISTORY_SIZE;
 
     while (index != history.index) {
