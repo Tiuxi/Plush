@@ -67,9 +67,8 @@ List plushInput_splitInput(char *command);
  * Check in the List "command" if there are redirection and they are correctly made, if not return error message in argument `error`
  * 
  * @param command       The list of argument to check
- * @param error         Error message if -1 is returned, `NULL` else
  * @return 0 if the command is correctly redirected, -1 else
  */
-int plushInput_checkRedirect(List command, Error error);
+int plushInput_checkRedirect(List command);
 
 #endif

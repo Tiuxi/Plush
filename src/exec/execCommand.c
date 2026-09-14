@@ -107,7 +107,7 @@ void plushExec_execute_command(char* commandStr) {
         // check if no command given in input
         int size = plushList_size(command->v);
         if (size == 0 || (size == 1 && ((char*)((List)command->v)->v)[0] == '\0')) {
-            plushError_print_new_error("No command given");
+            plushError_print_error("No command given");
 
             // free everything
             plushList_destroy2DListAll(commands);
@@ -118,17 +118,13 @@ void plushExec_execute_command(char* commandStr) {
         char* executable = NULL;
 
         // Check redirection
-        Error errorRedirect = plushError_new_error();
-        if (plushInput_checkRedirect(currentCommand, errorRedirect) == -1) {
-            plushError_print_error(errorRedirect);
-            plushError_destroy_error(errorRedirect);
+        if (plushInput_checkRedirect(currentCommand) == -1) {
 
             // free everything
             plushList_destroy2DListAll(commands);
             plushList_destroyAll(paths);
             return;
         }
-        plushError_destroy_error(errorRedirect);
 
         // Check built-in
         if (plushBuiltin_check_builtin(currentCommand)) {
@@ -148,11 +144,7 @@ void plushExec_execute_command(char* commandStr) {
         }
 
         if (executable==NULL) {
-            // set error & print it
-            Error err = plushError_new_error();
-            plushError_set_error_with_argument(err, "Command not found", currentCommand->v);
-            plushError_print_error(err);
-            plushError_destroy_error(err);
+            plushError_print_error("%s : command not found", currentCommand->v);
 
             // free everything
             plushList_destroy2DListAll(commands);
@@ -164,7 +156,7 @@ void plushExec_execute_command(char* commandStr) {
         switch (fork()) {
             // fork error
             case -1:
-                plushError_print_new_error("CRITICAL : fork error");
+                plushError_print_error("CRITICAL : fork error");
                 return;
                 break;
             

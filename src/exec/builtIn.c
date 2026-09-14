@@ -11,7 +11,7 @@ int plushBuiltin_check_builtin(List cmd) {
         if (plushList_size(cmd) < 2) {
             newPWD = getenv(VAR_HOME);
             if (newPWD == NULL || newPWD[0] == '\0')
-                plushError_print_new_warn("$HOME not initialized");
+                plushError_print_error("$HOME not initialized");
         }
 
         // 2 arguments ("cd", "dir")
@@ -21,29 +21,19 @@ int plushBuiltin_check_builtin(List cmd) {
         
         // 3+ arguments, throw error
         else {
-            plushError_print_new_error("cd : too many arguments");
+            plushError_print_error("cd : too many arguments");
         }
         
         if (newPWD != NULL && newPWD[0] != '\0') {
             if (chdir(newPWD)==-1) {
                 switch (errno) {
                 case ENOENT:
-                    {
-                        Error err = plushError_new_error();
-                        
-                        plushError_set_error_with_argument(err, "No directory named", newPWD);
-                        plushError_print_error(err);
-                        plushError_destroy_error(err);
-                    }
+                    plushError_print_error("No directory named %s", newPWD);
 
                     break;
                 
                 default:
-                    {
-                        char err[26];
-                        snprintf(err, 26, "Unkown error. errno : %d", errno);
-                        plushError_print_new_error(err);
-                    }
+                    plushError_print_error("Unkown error. errno : %d", errno);
                     break;
                 }
             };
