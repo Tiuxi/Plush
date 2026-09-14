@@ -136,6 +136,25 @@ void plushExec_execute_command(char* commandStr) {
         if (ISFILE(currentCommand)) {
             executable = (char*)malloc(sizeof(char) * PLUSH_MAX_ARG_LENGTH);
             snprintf(executable, PLUSH_MAX_ARG_LENGTH, "%s", (char*)currentCommand->v);
+
+            if (access(executable, F_OK) != 0) {
+                plushError_print_error("%s : executable file not found", executable);
+
+                plushList_destroy2DListAll(commands);
+                plushList_destroyAll(paths);
+                free(executable);
+                return;
+            }
+
+            struct stat sd;
+            if (stat(executable, &sd) == 0 && !(sd.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))) {
+                plushError_print_error("%s is not an executable file", executable);
+
+                plushList_destroy2DListAll(commands);
+                plushList_destroyAll(paths);
+                free(executable);
+                return;
+            }
         }
 
         // Check "PATH" executables
