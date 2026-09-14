@@ -9,7 +9,7 @@ void plushHistory_check_dir() {
 
     const char* envHome = getenv(VAR_HOME);
     if (envHome == NULL || envHome[0] == '\0') {
-        plushError_print_new_warn("$HOME not initialized. History will not be activated");
+        plushError_print_warn("$HOME not initialized. History will not be activated");
         isHistoryActivated = FALSE;
         return;
     }
@@ -24,12 +24,12 @@ void plushHistory_check_dir() {
     } else if (errno == ENOENT) { // directory doesn't exist
 
         if(mkdir(histPath, MOD_HISTDIR) != 0) {
-            plushError_print_new_error("Cannont create history directory");
+            plushError_print_error("Cannont create history directory");
             isHistoryActivated = FALSE;
         }
 
     } else { // unknown error
-        plushError_print_new_error("Cannot open history directory");
+        plushError_print_error("Cannot open history directory");
         printf("%d\n", errno);
         isHistoryActivated = FALSE;
     }
@@ -95,7 +95,7 @@ void plushHistory_load_file() {
         }
     }
     if (bytes_reads == -1) {
-        plushError_print_new_warn("Error while reading the history file");
+        plushError_print_warn("Error while reading the history file");
     }
 
     if (currentIndex != 0) {
@@ -162,7 +162,7 @@ void plushHistory_add_command(const char* command) {
     // append to history file
     const char* envHome = getenv(VAR_HOME);
     if (envHome == NULL || envHome[0] == '\0') {
-        plushError_print_new_warn("$HOME not set, could not save history");
+        plushError_print_warn("$HOME not set, could not save history");
         return;
     }
 
@@ -173,7 +173,7 @@ void plushHistory_add_command(const char* command) {
 
     if (write(history.fd, history.hist[oldIndex], strlen(history.hist[oldIndex])) < 0
             || write(history.fd, "\n", 1) < 0) {
-        plushError_print_new_warn("Cannot write to history file");
+        plushError_print_warn("Cannot write to history file");
     }
 
     close(history.fd);
@@ -187,7 +187,7 @@ void plushHistory_save_to_file() {
 
     const char* envHome = getenv(VAR_HOME);
     if (envHome == NULL || envHome[0] == '\0') {
-        plushError_print_new_warn("$HOME not set, could not save history");
+        plushError_print_warn("$HOME not set, could not save history");
         return;
     }
 
@@ -202,7 +202,7 @@ void plushHistory_save_to_file() {
         if (history.hist[index] != NULL) {
             if (write(history.fd, history.hist[index], strlen(history.hist[index])) < 0
             || write(history.fd, "\n", 1) < 0) {
-                plushError_print_new_warn("Cannot write to history file");
+                plushError_print_warn("Cannot write to history file");
                 break;
             }
         }

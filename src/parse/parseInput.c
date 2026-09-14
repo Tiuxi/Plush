@@ -59,7 +59,7 @@ List plushInput_splitInput(char* command) {
             while (command[i] != '\"') {
                 // if end of string, throw error
                 if (command[i] == '\0') {
-                    plushError_print_new_error("\" not closed");
+                    plushError_print_error("\" not closed");
                     plushList_destroy2DListAll(commandList);
                     return NULL;
                 } 
@@ -102,12 +102,12 @@ List plushInput_splitInput(char* command) {
     return commandList;
 }
 
-int plushInput_checkRedirect(List command, Error error) {
+int plushInput_checkRedirect(List command) {
     List tmp = command;
 
     // if redirection before command, raise error
     if (ISREDIRECT(tmp)) {
-        plushError_set_error_with_argument(error, "Redirection is made before command", tmp->v);
+        plushError_print_error("Redirection is made before command");
         return -1;
     }
 
@@ -120,26 +120,26 @@ int plushInput_checkRedirect(List command, Error error) {
 
             // if there is nothing after or another redirection, raise error
             if (tmp->next == NULL || ISREDIRECT(tmp->next)) {
-                plushError_set_error_with_argument(error, "No file specified for redirection", tmp->v);
+                plushError_print_error("No file specified for redirection : ", tmp->v);
                 return -1;
             }
 
             // check type of redirection, and make sure there's not the same redirection more than once
             if (ISSTDIN(tmp)) {
                 if (redirections[0] != 0) {
-                    plushError_set_error_with_argument(error, "Redirecting the stream STDIN more than once", tmp->v);
+                    plushError_print_error("Redirecting the stream STDIN more than once : ", tmp->v);
                     return -1;
                 }
                 redirections[0]++;
             } else if (ISSTDOUT(tmp)) {
                 if (redirections[1] != 0) {
-                    plushError_set_error_with_argument(error, "Redirecting the stream STDOUT more than once", tmp->v);
+                    plushError_print_error("Redirecting the stream STDOUT more than once : ", tmp->v);
                     return -1;
                 }
                 redirections[1]++;
             } else if (ISSTDERR(tmp)) {
                 if (redirections[2] != 0) {
-                    plushError_set_error_with_argument(error, "Redirecting the stream STDERR more than once", tmp->v);
+                    plushError_print_error("Redirecting the stream STDERR more than once : ", tmp->v);
                     return -1;
                 }
                 redirections[2]++;

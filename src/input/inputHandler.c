@@ -35,7 +35,7 @@ void PlushInput_get_input_loop() {
             int returnValue = select(lstate.ifd+1, &readfds, NULL, NULL, &tv);
 
             if (returnValue == -1) {
-                plushError_print_new_error("select syscall failed");
+                plushError_print_error("select syscall failed");
                 exit(1);
             }
             else if (returnValue != 0) { // char inputed
@@ -66,7 +66,7 @@ void PlushInput_get_input_loop() {
                     break;
                 
                 default:
-                    plushError_print_new_error("failed getting user input");
+                    plushError_print_error("failed getting user input");
                     exit(1);
                     break;
             }

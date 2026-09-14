@@ -1,47 +1,79 @@
 #include "utils/error.h"
 
-Error plushError_new_error() {
-    Error err = (Error)malloc(sizeof(char*));
-    *err = NULL;
-    return err;
+void plushError_print_error(const char* error, ...) {
+    va_list args;
+    va_start(args, error);
+
+    printf("[%sPlush Error%s] ", COLOR_REDBOLD, COLOR_BASE);
+
+    int errorLength = strlen(error);
+    for (int i=0; i<errorLength; i++) {
+        char c = error[i];
+        if (c == '%') {
+            i++;
+            c = error[i];
+
+            switch (c) {
+            case 'd':
+                printf("%d", va_arg(args, int));
+                break;
+
+            case 's':
+                printf("%s", va_arg(args, char*));
+                break;
+
+            case 'c':
+                putchar(va_arg(args, int));
+                break;
+            
+            default:
+                printf("%%%c", c);
+                break;
+            }
+        } else
+            putchar(c);
+    }
+
+    putc('\n', stdout);
+    fflush(stdout);
+    va_end(args);
 }
 
-void plushError_destroy_error(Error err) {
-    if (*err != NULL)
-        free(*err);
-    
-    free(err);
-}
+void plushError_print_warn(const char* warn, ...) {
+    va_list args;
+    va_start(args, warn);
 
-void plushError_set_error_message(Error err, const char *message) {
-    char* tmp = (char*)calloc(PLUSH_MAX_ERROR_LENGTH, sizeof(char));
-    snprintf(tmp, PLUSH_MAX_ERROR_LENGTH, "[%sError%s] %s\n", COLOR_REDBOLD, COLOR_BASE, message);
-    *err = tmp;
-}
+    printf("[%sPlush Warn%s] ", COLOR_YELLOWBOLD, COLOR_BASE);
 
-void plushError_set_error_with_argument(Error err, const char* message, char* arg) {
-    char* tmp = (char*)calloc(PLUSH_MAX_ERROR_LENGTH, sizeof(char));
-    snprintf(tmp, PLUSH_MAX_ERROR_LENGTH, "[%sError%s] %s : %s\n", COLOR_REDBOLD, COLOR_BASE, message, arg);
-    *err = tmp;
-}
+    int warnLength = strlen(warn);
+    for (int i = 0; i < warnLength; i++) {
+        char c = warn[i];
+        if (c == '%') {
+            i++;
+            c = warn[i];
 
-void plushError_print_error(Error err) {
-    ssize_t bytes_written = write(STDERR_FILENO, *err, PLUSH_MAX_ERROR_LENGTH);
-    (void)bytes_written;
-}
+            switch (c) {
+                case 'd':
+                    printf("%d", va_arg(args, int));
+                    break;
 
-void plushError_print_new_error(char *message) {
-    Error err = plushError_new_error();
-    plushError_set_error_message(err, message);
-    plushError_print_error(err);
-    plushError_destroy_error(err);
-    return;
-}
+                case 's':
+                    printf("%s", va_arg(args, char*));
+                    break;
 
-void plushError_print_new_warn(char* message) {
-    char* tmp = (char*)calloc(PLUSH_MAX_ERROR_LENGTH, sizeof(char));
-    snprintf(tmp, PLUSH_MAX_ERROR_LENGTH, "[%sWarn%s] %s\n", COLOR_YELLOWBOLD, COLOR_BASE, message);
-    ssize_t bytes_written = write(STDERR_FILENO, tmp, PLUSH_MAX_ERROR_LENGTH);
-    (void)bytes_written;
-    return;
+                case 'c':
+                    putchar(va_arg(args, int));
+                    break;
+
+                default:
+                    printf("%%%c", c);
+                    break;
+            }
+        } else
+            putchar(c);
+    }
+
+    putc('\n', stdout);
+    fflush(stdout);
+    va_end(args);
 }
