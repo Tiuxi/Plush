@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include "utils/constants.h"
-#include "parse/parseInput.h"
+#include "parser/tokenParser.h"
 #include "utils/list.h"
 #include "utils/error.h"
 #include "exec/builtIn.h"
