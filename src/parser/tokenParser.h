@@ -7,47 +7,23 @@
 #include "utils/constants.h"
 #include "utils/error.h"
 
-
-
-    /************************ MACROS ************************/
-
-
-/** 
- * REDIRECTIONS :
- * 
- * <   : stdin
- * >   : stdout
- * >+  : stdout (append mode)
- * >>  : stderr
- * >>+ : stderr (append mode)
- */
-
 #define ISSTDIN(arg) \
     (strncmp((char *)arg->v, "<", PLUSH_MAX_ARG_LENGTH) == 0)
 
 #define ISSTDOUT(arg) \
-    (strncmp((char *)arg->v, ">", PLUSH_MAX_ARG_LENGTH) == 0) || \
-    (strncmp((char *)arg->v, ">+", PLUSH_MAX_ARG_LENGTH) == 0)
+    (strncmp((char *)arg->v, ">", PLUSH_MAX_ARG_LENGTH) == 0)  ||   \
+    (strncmp((char *)arg->v, ">>", PLUSH_MAX_ARG_LENGTH) == 0) ||  \
+    (strncmp((char *)arg->v, "1>", PLUSH_MAX_ARG_LENGTH) == 0) ||   \
+    (strncmp((char *)arg->v, "1>>", PLUSH_MAX_ARG_LENGTH) == 0)
 
 #define ISSTDERR(arg) \
-    (strncmp((char *)arg->v, ">>", PLUSH_MAX_ARG_LENGTH) == 0) || \
-    (strncmp((char *)arg->v, ">>+", PLUSH_MAX_ARG_LENGTH) == 0) \
+    (strncmp((char *)arg->v, "2>", PLUSH_MAX_ARG_LENGTH) == 0) || \
+    (strncmp((char *)arg->v, "2>>", PLUSH_MAX_ARG_LENGTH) == 0)
 
 #define ISREDIRECT(arg) \
     ISSTDERR(arg) || ISSTDOUT(arg) || ISSTDIN(arg)
 
-
-/**
- * /  : root directory
- * .  : current directory
- * .. : parrent directory
- * ~  : home directory
- */
-#define ISFILE(command) \
-    (((char *)command->v)[0] == '/' || \
-    ((char *)command->v)[0] == '~' || \
-    ((char *)command->v)[0] == '.')
-
+bool PlushToken_isFile(char* string);
 
 
     /************************ FUNCTIONS ************************/

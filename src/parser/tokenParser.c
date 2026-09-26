@@ -1,5 +1,15 @@
 #include "parser/tokenParser.h"
 
+bool PlushToken_isFile(char* string) {
+    if (string == NULL) return FALSE;
+
+    for (int i=0; string[i]!='\0'; i++)
+        if (string[i] == '/')
+            return TRUE;
+
+    return FALSE;
+}
+
 List plushInput_splitInput(char* command) {
     int commandLength = strlen(command);
 

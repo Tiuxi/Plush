@@ -7,38 +7,45 @@
 
 /*
 
-program := commands | empty
+The grammar of the shell.
+When a rule can be empty, the next possibles tokens are indicated after, between brackets
 
-commandlist := command
-        | command && mandatoryCommand
-        | command || mandatoryCommand
-        | command ; commandlist
-        | command \n commandlist
+tokens : [word, file, redirectToken, ;, \n, $, &&, ||]
 
-mandatoryCommand := exe args redirect ; commandlist
-        | exe args redirect \n commandlist
 
-command := exe args redirect
-        | if (condition) { commandlist }
-        | empty
+program := commandList $ | empty [$]
 
-exe := word
+(with a "allow empty" flag)
+commandList := command
+        | mandatoryCommand ( ["&&" | "||"] commandList(false) )*          // left associativity
+        | command ; commandList
+        | command \n commandList
 
-args := word args | empty
+mandatoryCommand := exe args redirection
 
-redirect := < file redirect
-        | < file redirect
-        | > file redirect
-        | 1> file redirect
-        | 2> file redirect
-        | >> file redirect
-        | 2>> file redirect
-        | 1>> file redirect
-        | empty
+command := exe args redirection
+        | if "(" condition ")" "{" commandList "}"
+        | empty [;, \n, $]
 
-file := word
+exe := word | file
 
-condition := $(exe args)
+args := word args 
+        | file args
+        | empty [<, <<, >, >>, 1>, 2>, 1>>, 2>>, &&, ||, ;, \n, $]
+
+redirection := redirectToken word redirection
+        | redirectToken file redirection
+        | empty [&&, ||, ;, \n, $]
+
+redirectToken := < | << 
+        | > | 1> | 2> 
+        | >> | 1>> | 2>>
+
+condition := $(exe args)        // return code 0 = True, return code 1 = False
+        | ! condition           // logical not
+
+        // (envvar will be defined later, this rule isn't implemented for now)
+        | envvar                // "" = False, anything else = True
 */
 
 typedef enum {
