@@ -7,44 +7,35 @@
 #include "utils/constants.h"
 #include "utils/error.h"
 
-#define ISSTDIN(arg) \
-    (strncmp((char *)arg->v, "<", PLUSH_MAX_ARG_LENGTH) == 0)
+typedef enum e_token_type {
+    Token_WORD,
+    Token_REDIRECT,
+    Token_END_OF_COMMAND,
+    Token_END_OF_INPUT,
+    Token_AND,
+    Token_OR
+} Plush_Token_Type;
 
-#define ISSTDOUT(arg) \
-    (strncmp((char *)arg->v, ">", PLUSH_MAX_ARG_LENGTH) == 0)  ||   \
-    (strncmp((char *)arg->v, ">>", PLUSH_MAX_ARG_LENGTH) == 0) ||  \
-    (strncmp((char *)arg->v, "1>", PLUSH_MAX_ARG_LENGTH) == 0) ||   \
-    (strncmp((char *)arg->v, "1>>", PLUSH_MAX_ARG_LENGTH) == 0)
-
-#define ISSTDERR(arg) \
-    (strncmp((char *)arg->v, "2>", PLUSH_MAX_ARG_LENGTH) == 0) || \
-    (strncmp((char *)arg->v, "2>>", PLUSH_MAX_ARG_LENGTH) == 0)
-
-#define ISREDIRECT(arg) \
-    ISSTDERR(arg) || ISSTDOUT(arg) || ISSTDIN(arg)
-
-bool PlushToken_isFile(char* string);
-
-
-    /************************ FUNCTIONS ************************/
-
+typedef struct s_parsed_token {
+    Plush_Token_Type type;
+    char* token;
+} Plush_Token;
 
 /**
- * Split a string into an list of every command by separating at every pipe.
- * Each command is a list of char separated by spaces
+ * Return a list of Plush_Token struct and store the number of total tokens in nbTokens.
+ * The list is allocated using the malloc function
  *
- * @short Split a string into an array
- * @param command       The string to split
- * @return The list of commands
+ * @param input     The string to tokenize
+ * @param nbTokens  The variable in which the number of tokens will be stored
+ *
+ * @return A malloced list of Plush_Token struct
  */
-List plushInput_splitInput(char *command);
+Plush_Token* plushToken_tokenize(char* input, int* nbTokens);
 
-/**
- * Check in the List "command" if there are redirection and they are correctly made, if not return error message in argument `error`
- * 
- * @param command       The list of argument to check
- * @return 0 if the command is correctly redirected, -1 else
- */
-int plushInput_checkRedirect(List command);
+
+bool plushToken_isFile(char* token);
+bool plushToken_isStdin(char* token);
+bool plushToken_isStdout(char* token);
+bool plushToken_isStderr(char* token);
 
 #endif

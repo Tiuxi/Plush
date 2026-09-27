@@ -10,36 +10,29 @@
 The grammar of the shell.
 When a rule can be empty, the next possibles tokens are indicated after, between brackets
 
-tokens : [word, file, redirectToken, ;, \n, $, &&, ||]
+tokens : [word, redirectToken, EOC (end-of-command), EOI (end-of-input), &&, ||]
 
 
-program := commandList $ | empty [$]
+program := commandList EOI | empty [EOI]
 
 (with a "allow empty" flag)
 commandList := command
         | mandatoryCommand ( ["&&" | "||"] commandList(false) )*          // left associativity
-        | command ; commandList
-        | command \n commandList
+        | command EOC commandList
 
 mandatoryCommand := exe args redirection
 
 command := exe args redirection
         | if "(" condition ")" "{" commandList "}"
-        | empty [;, \n, $]
+        | empty [EOC, EOI]
 
-exe := word | file
+exe := word
 
-args := word args 
-        | file args
-        | empty [<, <<, >, >>, 1>, 2>, 1>>, 2>>, &&, ||, ;, \n, $]
+args := word args
+        | empty [<, <<, >, >>, 1>, 2>, 1>>, 2>>, &&, ||, EOC, EOI]
 
 redirection := redirectToken word redirection
-        | redirectToken file redirection
-        | empty [&&, ||, ;, \n, $]
-
-redirectToken := < | << 
-        | > | 1> | 2> 
-        | >> | 1>> | 2>>
+        | empty [&&, ||, EOC, EOI]
 
 condition := $(exe args)        // return code 0 = True, return code 1 = False
         | ! condition           // logical not

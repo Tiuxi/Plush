@@ -1,162 +1,182 @@
 #include "parser/tokenParser.h"
 
-bool PlushToken_isFile(char* string) {
-    if (string == NULL) return FALSE;
+#define isNumber(c) ( \
+    c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || \
+    c == '5' || c == '6' || c == '7' || c == '8' || c == '9'    \
+)
 
-    for (int i=0; string[i]!='\0'; i++)
-        if (string[i] == '/')
+#define isWord(c) ( \
+       c != ' '  && c != ';'  && c != '\n' && c != '\0'         \
+    && c != '<'  && c != '>'  && c != '&'  && c != '|'          \
+)
+
+bool plushToken_isFile(char* token) {
+    if (token == NULL) return FALSE;
+
+    for (int i=0; token[i]!='\0'; i++)
+        if (token[i] == '/')
             return TRUE;
 
     return FALSE;
 }
 
-List plushInput_splitInput(char* command) {
-    int commandLength = strlen(command);
-
-    char* s = (char*)malloc(sizeof(char) * PLUSH_MAX_ARG_LENGTH);
-    List argList = plushList_new(s); // list with current command arguments
-    List commandList = plushList_new(argList); // list with every command
-    List n = argList; // list element of current argument
-
-    int currentIndex = 0;
-    for (int i=0; i<commandLength; i++) {
-
-        // if pipe, separate in a new command
-        if (command[i] == '|') {
-            if (currentIndex == 0 && plushList_size(argList) != 1) {
-                argList = plushList_pop(argList);
-            }else {
-                ((char *)(n->v))[currentIndex] = '\0';
-                currentIndex = 0;
-            }
-
-            s = (char*)malloc(sizeof(char) * PLUSH_MAX_ARG_LENGTH);
-            argList = plushList_new(s);
-            commandList = plushList_push(commandList, argList);
-            n = argList;
-
-            i++;
-            while (i < commandLength && command[i] == ' '){
-                i++;
-            }
-            i--;
-        }
-        
-        // slice by spaces
-        else if (command[i] == ' ') {
-            if (currentIndex == 0) {
-                continue;
-            } else {
-                ((char*)(n->v))[currentIndex] = '\0';
-                currentIndex = 0;
-            }
-            
-            s = (char*)malloc(sizeof(char) * PLUSH_MAX_ARG_LENGTH);
-            argList = plushList_push(argList, s);
-            n = n->next;
-        }
-
-        // if escape character, put next char in string
-        else if (command[i] == '\\') {
-            ((char *)(n->v))[currentIndex] = command[i+1];
-            currentIndex++;
-            i++;
-        }
-
-        // if double quotes, switch to input mode (no special character)
-        else if (command[i] == '\"') {
-            i++;
-            while (command[i] != '\"') {
-                // if end of string, throw error
-                if (command[i] == '\0') {
-                    plushError_print_error("\" not closed");
-                    plushList_destroy2DListAll(commandList);
-                    return NULL;
-                } 
-                // if escape character
-                else if (command[i] == '\\') {
-                    // if special character, escape it, else add "\"
-                    switch (command[i+1]) {
-                        case '\\':
-                            ((char *)(n->v))[currentIndex] = '\\';
-                            break;
-                        case '\"':
-                            ((char *)(n->v))[currentIndex] = '\"';
-                            break;
-                        
-                        default:
-                            ((char *)(n->v))[currentIndex] = '\\';
-                            i--;
-                            break;
-                    }
-                    currentIndex++;
-                    i+=2;
-                } else {
-                    ((char *)(n->v))[currentIndex] = command[i]; 
-                    currentIndex++;
-                    i++;
-                }
-            }
-        }
-
-        // else put the char at the end of the string
-        else {
-            if (currentIndex < PLUSH_MAX_ARG_LENGTH-1) {
-                ((char *)(n->v))[currentIndex] = command[i]; // copy every char
-                currentIndex++;
-            }
-        }
-    }
-    ((char*)(n->v))[currentIndex] = '\0';
-
-    return commandList;
+bool plushToken_isStdin(char* token) {
+    int tokenLength = strlen(token);
+    return (strncmp(token, "<", tokenLength) == 0);
 }
 
-int plushInput_checkRedirect(List command) {
-    List tmp = command;
+bool plushToken_isStdout(char* token) {
+    int tokenLength = strlen(token);
+    return (strncmp(token, ">", tokenLength) == 0)
+        || (strncmp(token, ">>", tokenLength) == 0)
+        || (strncmp(token, "1>", tokenLength) == 0)
+        || (strncmp(token, "1>>", tokenLength) == 0);
+}
 
-    // if redirection before command, raise error
-    if (ISREDIRECT(tmp)) {
-        plushError_print_error("Redirection is made before command");
-        return -1;
+bool plushToken_isStderr(char* token) {
+    int tokenLength = strlen(token);
+    return (strncmp(token, "2>", tokenLength) == 0)
+        || (strncmp(token, "2>>", tokenLength) == 0);
+}
+
+Plush_Token* plushToken_tokenize(char* _input, int* nbTokens) {
+    int nbTokenAllocated = 8;
+    Plush_Token* tokenList = (Plush_Token*)malloc(sizeof(Plush_Token) * nbTokenAllocated);
+
+    if (_input == NULL) {
+        *nbTokens = 0;
+        tokenList[0].type = Token_END_OF_INPUT;
+        tokenList[0].token = "\0";
+        return tokenList;
     }
 
-    int redirections[3] = {0, 0, 0};
+    int index = 0, tokenIndex = 0;
+    int inputLength = strlen(_input) + 1;
+    char* input = (char*)malloc(sizeof(char) * inputLength);
+    memcpy(input, _input, inputLength-1);
+    input[inputLength-1] = '\0';
 
-    for (tmp=command; tmp!=NULL; tmp=tmp->next) {
+    // main loop
+    while (index < inputLength) {
+        int currentTokenLength = 0;
+        int currentTokenAllocated = 32;
 
-        // is a redirection
-        if (ISREDIRECT(tmp)) {
+        // skip spaces
+        while (input[index] == ' ' || input[index] == '\t')
+            index++;
+        
+        // word and redirection with fd indication 
+        if (isWord(input[index])) {
+            tokenList[tokenIndex].type = Token_WORD;
+            tokenList[tokenIndex].token = (char*)malloc(sizeof(char) * currentTokenAllocated);
 
-            // if there is nothing after or another redirection, raise error
-            if (tmp->next == NULL || ISREDIRECT(tmp->next)) {
-                plushError_print_error("No file specified for redirection : ", tmp->v);
-                return -1;
+            // check redirection
+            while(isNumber(input[index])) {
+                tokenList[tokenIndex].token[currentTokenLength] = input[index];
+                index++;
+                currentTokenLength++;
+                
+                if (currentTokenLength == currentTokenAllocated) {
+                    currentTokenAllocated *= 2;
+                    tokenList[tokenIndex].token = (char*)realloc(tokenList[tokenIndex].token, currentTokenAllocated);
+                }
+            }
+            int redirectionNbChar = 0;
+            while (input[index] == '<' || input[index] == '>') {
+                tokenList[tokenIndex].type = Token_REDIRECT;
+                tokenList[tokenIndex].token[currentTokenLength] = input[index];
+                index++;
+                currentTokenLength++;
+                redirectionNbChar++;
+
+                if (currentTokenLength == currentTokenAllocated) {
+                    currentTokenAllocated *= 2;
+                    tokenList[tokenIndex].token = (char*)realloc(tokenList[tokenIndex].token, currentTokenAllocated);
+                }
+                if (redirectionNbChar == 2)
+                    break;
             }
 
-            // check type of redirection, and make sure there's not the same redirection more than once
-            if (ISSTDIN(tmp)) {
-                if (redirections[0] != 0) {
-                    plushError_print_error("Redirecting the stream STDIN more than once : ", tmp->v);
-                    return -1;
-                }
-                redirections[0]++;
-            } else if (ISSTDOUT(tmp)) {
-                if (redirections[1] != 0) {
-                    plushError_print_error("Redirecting the stream STDOUT more than once : ", tmp->v);
-                    return -1;
-                }
-                redirections[1]++;
-            } else if (ISSTDERR(tmp)) {
-                if (redirections[2] != 0) {
-                    plushError_print_error("Redirecting the stream STDERR more than once : ", tmp->v);
-                    return -1;
-                }
-                redirections[2]++;
-            }
+            if (tokenList[tokenIndex].type != Token_REDIRECT) {
+                while (isWord(input[index])) {
+                    tokenList[tokenIndex].token[currentTokenLength] = input[index];
+                    index++;
+                    currentTokenLength++;
 
+                    if (currentTokenLength == currentTokenAllocated) {
+                        currentTokenAllocated *= 2;
+                        tokenList[tokenIndex].token = (char*)realloc(tokenList[tokenIndex].token, currentTokenAllocated);
+                    }
+                }
+            }
         }
+
+        // redirection
+        else if (input[index] == '<' || input[index] == '>') {
+            tokenList[tokenIndex].type = Token_REDIRECT;
+            tokenList[tokenIndex].token = (char*)malloc(sizeof(char) * currentTokenAllocated);
+
+            while (input[index] == '<' || input[index] == '>') {
+                tokenList[tokenIndex].token[currentTokenLength] = input[index];
+                index++;
+                currentTokenLength++;
+
+                if (currentTokenLength == 2)
+                    break;
+            }
+        }
+
+        // and
+        else if (input[index] == '&') {
+            tokenList[tokenIndex].type = Token_AND;
+            tokenList[tokenIndex].token = (char*)malloc(sizeof(char) * currentTokenAllocated);
+
+            while (input[index] == '&') {
+                tokenList[tokenIndex].token[currentTokenLength] = input[index];
+                index++;
+                currentTokenLength++;
+
+                if (currentTokenLength == 2)
+                    break;
+            }
+        }
+
+        // or
+        else if (input[index] == '|') {
+            tokenList[tokenIndex].type = Token_OR;
+            tokenList[tokenIndex].token = (char*)malloc(sizeof(char) * currentTokenAllocated);
+
+            while (input[index] == '|') {
+                tokenList[tokenIndex].token[currentTokenLength] = input[index];
+                index++;
+                currentTokenLength++;
+
+                if (currentTokenLength == 2)
+                    break;
+            }
+        }
+
+        // End-Of-Command
+        else if (input[index] == ';' || input[index] == '\n') {
+            tokenList[tokenIndex].type = Token_END_OF_COMMAND;
+            tokenList[tokenIndex].token = (char*)malloc(sizeof(char) * currentTokenAllocated);
+            tokenList[tokenIndex].token[0] = input[index];
+            tokenList[tokenIndex].token[1] = '\0';
+            index++;
+        }
+
+        // End-Of-Input
+        else if (input[index] == '\0') {
+            tokenList[tokenIndex].type = Token_END_OF_INPUT;
+            tokenList[tokenIndex].token = (char*)malloc(sizeof(char) * currentTokenAllocated);
+            tokenList[tokenIndex].token[0] = '\0';
+            break;
+        }
+
+        tokenIndex++;
     }
 
-    return 0;
+    free(input);
+    nbTokens = tokenIndex+1;
+    return tokenList;
 }
