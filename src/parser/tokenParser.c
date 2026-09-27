@@ -39,12 +39,11 @@ bool plushToken_isStderr(char* token) {
         || (strncmp(token, "2>>", tokenLength) == 0);
 }
 
-Plush_Token* plushToken_tokenize(char* _input, int* nbTokens) {
+Plush_Token* plushToken_tokenize(char* _input) {
     int nbTokenAllocated = 8;
     Plush_Token* tokenList = (Plush_Token*)malloc(sizeof(Plush_Token) * nbTokenAllocated);
 
     if (_input == NULL) {
-        *nbTokens = 0;
         tokenList[0].type = Token_END_OF_INPUT;
         tokenList[0].token = "\0";
         return tokenList;
@@ -174,9 +173,21 @@ Plush_Token* plushToken_tokenize(char* _input, int* nbTokens) {
         }
 
         tokenIndex++;
+        if (tokenIndex == nbTokenAllocated) {
+            nbTokenAllocated *= 2;
+            tokenList = (Plush_Token*)realloc(tokenList, nbTokenAllocated);
+        }
     }
 
     free(input);
-    nbTokens = tokenIndex+1;
     return tokenList;
+}
+
+void plushToken_freeTokenList(Plush_Token* list) {
+    int i = 0;
+    while (list[i].type != Token_END_OF_INPUT) {
+        free(list[i].token);
+        i++;
+    }
+    free(list);
 }

@@ -22,16 +22,16 @@ typedef struct s_parsed_token {
 } Plush_Token;
 
 /**
- * Return a list of Plush_Token struct and store the number of total tokens in nbTokens.
- * The list is allocated using the malloc function
+ * Return a list of Plush_Token struct.
+ * The list is allocated using the malloc function.
  *
  * @param input     The string to tokenize
- * @param nbTokens  The variable in which the number of tokens will be stored
  *
  * @return A malloced list of Plush_Token struct
  */
-Plush_Token* plushToken_tokenize(char* input, int* nbTokens);
+Plush_Token* plushToken_tokenize(char* input);
 
+void plushToken_freeTokenList(Plush_Token* list);
 
 bool plushToken_isFile(char* token);
 bool plushToken_isStdin(char* token);
