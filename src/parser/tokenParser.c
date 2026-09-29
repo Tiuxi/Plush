@@ -21,22 +21,19 @@ bool plushToken_isFile(char* token) {
 }
 
 bool plushToken_isStdin(char* token) {
-    int tokenLength = strlen(token);
-    return (strncmp(token, "<", tokenLength) == 0);
+    return (strcmp(token, "<") == 0);
 }
 
 bool plushToken_isStdout(char* token) {
-    int tokenLength = strlen(token);
-    return (strncmp(token, ">", tokenLength) == 0)
-        || (strncmp(token, ">>", tokenLength) == 0)
-        || (strncmp(token, "1>", tokenLength) == 0)
-        || (strncmp(token, "1>>", tokenLength) == 0);
+    return (strcmp(token, ">") == 0)
+        || (strcmp(token, ">>") == 0)
+        || (strcmp(token, "1>") == 0)
+        || (strcmp(token, "1>>") == 0);
 }
 
 bool plushToken_isStderr(char* token) {
-    int tokenLength = strlen(token);
-    return (strncmp(token, "2>", tokenLength) == 0)
-        || (strncmp(token, "2>>", tokenLength) == 0);
+    return (strcmp(token, "2>") == 0)
+        || (strcmp(token, "2>>") == 0);
 }
 
 Plush_Token* plushToken_tokenize(char* _input) {
@@ -45,7 +42,8 @@ Plush_Token* plushToken_tokenize(char* _input) {
 
     if (_input == NULL) {
         tokenList[0].type = Token_END_OF_INPUT;
-        tokenList[0].token = "\0";
+        tokenList[0].token = (char*)malloc(sizeof(char));
+        tokenList[0].token[0] = '\0';
         return tokenList;
     }
 
@@ -150,8 +148,10 @@ Plush_Token* plushToken_tokenize(char* _input) {
                 index++;
                 currentTokenLength++;
 
-                if (currentTokenLength == 2)
+                if (currentTokenLength == 2) {
+                    tokenList[tokenIndex].token[currentTokenLength] = '\0';
                     break;
+                }
             }
         }
 
@@ -172,10 +172,12 @@ Plush_Token* plushToken_tokenize(char* _input) {
             break;
         }
 
+        tokenList[tokenIndex].token[currentTokenLength] = '\0';
         tokenIndex++;
-        if (tokenIndex == nbTokenAllocated) {
+        if (tokenIndex+1 >= nbTokenAllocated) {
             nbTokenAllocated *= 2;
-            tokenList = (Plush_Token*)realloc(tokenList, nbTokenAllocated);
+            tokenList = (Plush_Token*)realloc(tokenList, sizeof(Plush_Token) * nbTokenAllocated);
+            ASSERT(tokenList != NULL);
         }
     }
 
@@ -189,5 +191,6 @@ void plushToken_freeTokenList(Plush_Token* list) {
         free(list[i].token);
         i++;
     }
+    free(list[i].token);
     free(list);
 }
