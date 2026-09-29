@@ -8,6 +8,7 @@
 #define isWord(c) ( \
        c != ' '  && c != ';'  && c != '\n' && c != '\0'         \
     && c != '<'  && c != '>'  && c != '&'  && c != '|'          \
+    && c != '\t'                                                \
 )
 
 bool plushToken_isFile(char* token) {
