@@ -97,13 +97,41 @@ Plush_Token* plushToken_tokenize(char* _input) {
 
             if (tokenList[tokenIndex].type != Token_REDIRECT) {
                 while (isWord(input[index])) {
-                    tokenList[tokenIndex].token[currentTokenLength] = input[index];
-                    index++;
-                    currentTokenLength++;
+                    if (input[index] == '"') {
+                        index++;
+                        while (input[index] != '"') {
+                            if (index < inputLength) {
+                                plushError_print_error("Unclosed \" in the input.");
+                                tokenList[tokenIndex].type = Token_END_OF_INPUT;
+                                tokenList[tokenIndex].token = (char*)malloc(sizeof(char));
+                                plushToken_freeTokenList(tokenList);
 
-                    if (currentTokenLength == currentTokenAllocated) {
-                        currentTokenAllocated *= 2;
-                        tokenList[tokenIndex].token = (char*)realloc(tokenList[tokenIndex].token, currentTokenAllocated);
+                                Plush_Token* tokenList = (Plush_Token*)malloc(sizeof(Plush_Token));
+                                tokenList[0].type = Token_END_OF_INPUT;
+                                tokenList[0].token = (char*)malloc(sizeof(char));
+                                tokenList[0].token[0] = '\0';
+
+                                return tokenList;
+                            }
+                            tokenList[tokenIndex].token[currentTokenLength] = input[index];
+                            index++;
+                            currentTokenLength++;
+
+                            if (currentTokenLength == currentTokenAllocated) {
+                                currentTokenAllocated *= 2;
+                                tokenList[tokenIndex].token = (char*)realloc(tokenList[tokenIndex].token, currentTokenAllocated);
+                            }
+                        }
+                        index++;
+                    } else {
+                        tokenList[tokenIndex].token[currentTokenLength] = input[index];
+                        index++;
+                        currentTokenLength++;
+
+                        if (currentTokenLength == currentTokenAllocated) {
+                            currentTokenAllocated *= 2;
+                            tokenList[tokenIndex].token = (char*)realloc(tokenList[tokenIndex].token, currentTokenAllocated);
+                        }
                     }
                 }
             }
