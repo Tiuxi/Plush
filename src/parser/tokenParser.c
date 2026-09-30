@@ -100,7 +100,7 @@ Plush_Token* plushToken_tokenize(char* _input) {
                     if (input[index] == '"') {
                         index++;
                         while (input[index] != '"') {
-                            if (index < inputLength) {
+                            if (index >= inputLength) {
                                 plushError_print_error("Unclosed \" in the input.");
                                 tokenList[tokenIndex].type = Token_END_OF_INPUT;
                                 tokenList[tokenIndex].token = (char*)malloc(sizeof(char));
