@@ -4,6 +4,7 @@
 #include <string.h>
 #include "utils/error.h"
 #include "utils/list.h"
+#include "parser/tokenParser.h"
 
 /*
 
@@ -20,7 +21,7 @@ commandList := command
         | mandatoryCommand ( ["&&" | "||"] commandList(false) )*          // left associativity
         | command EOC commandList
 
-mandatoryCommand := exe args redirection
+mandatoryCommand := exe ( args redirection )*
 
 command := exe args redirection
         | if "(" condition ")" "{" commandList "}"
@@ -47,6 +48,7 @@ typedef enum {
     COMMAND_IF,
     COMMAND_AND,
     COMMAND_OR,
+    COMMAND_NULL
 
 }Plush_Command_Type;
 
@@ -62,8 +64,10 @@ typedef struct s_plushCommand {
     List conditionFalse_command;
 }*Plush_Command;
 
-Plush_Command PlushSyntax_new_command();
+Plush_Command plushSyntax_new_command();
 
-void PlushSyntax_destroy_command(Plush_Command command);
+void plushSyntax_destroy_command(Plush_Command command);
+
+Plush_Command* plushSyntax_parseInput(char* input);
 
 #endif /* PLUSH_PARSER */
